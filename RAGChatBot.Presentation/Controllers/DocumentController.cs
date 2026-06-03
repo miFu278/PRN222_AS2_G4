@@ -130,6 +130,21 @@ namespace RAGChatBot.Presentation.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetChunks(Guid id)
+        {
+            try
+            {
+                var chunks = await _documentService.GetDocumentChunksAsync(id);
+                return Json(chunks);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy danh sách chunks cho tài liệu {DocId}", id);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> TestConnection()
         {

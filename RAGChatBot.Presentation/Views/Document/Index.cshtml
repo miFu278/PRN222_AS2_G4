@@ -190,6 +190,9 @@
                                                     <i class="fa-regular fa-eye"></i>
                                                 </a>
                                             }
+                                            <button type="button" class="btn btn-action-view btn-view-chunks" data-id="@doc.Id" data-filename="@doc.FileName" title="Xem các phân đoạn AI (Chunks)" style="@(doc.IsProcessed ? "" : "display: none !important;")">
+                                                <i class="fa-solid fa-puzzle-piece"></i>
+                                            </button>
                                             <a href="@doc.StoragePath" target="_blank" class="btn btn-action-view ms-1" title="Tải về">
                                                 <i class="fa-solid fa-download"></i>
                                             </a>
@@ -215,6 +218,37 @@
     </div>
 </div>
 
+</div>
+
+<!-- Modal Xem Chunks -->
+<div class="modal fade" id="viewChunksModal" tabindex="-1" aria-labelledby="viewChunksModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4" style="background: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header border-bottom-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-dark" id="viewChunksModalLabel">
+                    <i class="fa-solid fa-puzzle-piece text-indigo me-2"></i>Phân Đoạn Tài Liệu (AI Chunks)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="mb-3 text-muted" style="font-size: 0.9rem;">
+                    Tài liệu: <strong class="text-indigo modal-filename-display"></strong>
+                </div>
+                <div class="chunks-container d-flex flex-column gap-3" style="max-height: 50vh; overflow-y: auto; padding-right: 5px;">
+                    <!-- Dữ liệu Chunks sẽ được render động ở đây -->
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-spinner fa-spin fa-2x mb-2 text-indigo"></i>
+                        <div>Đang tải dữ liệu chunks...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pb-4 px-4">
+                <button type="button" class="btn btn-secondary py-2 px-4 rounded-3" data-bs-dismiss="modal" style="background: #64748b; border: none; font-weight: 500;">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.getElementById('file').addEventListener('change', function(e) {
@@ -223,6 +257,71 @@
             textSpan.textContent = fileName;
             textSpan.style.display = 'block';
             textSpan.style.setProperty('display', 'block', 'important');
+        });
+
+        // Xử lý sự kiện xem Chunks
+        document.addEventListener('DOMContentLoaded', function() {
+            var chunksModalElement = document.getElementById('viewChunksModal');
+            var chunksModal = new bootstrap.Modal(chunksModalElement);
+            var container = chunksModalElement.querySelector('.chunks-container');
+            var filenameDisplay = chunksModalElement.querySelector('.modal-filename-display');
+
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('.btn-view-chunks');
+                if (btn) {
+                    var docId = btn.getAttribute('data-id');
+                    var filename = btn.getAttribute('data-filename');
+
+                    filenameDisplay.textContent = filename;
+                    container.innerHTML = `
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa-solid fa-spinner fa-spin fa-2x mb-2 text-indigo"></i>
+                            <div>Đang tải dữ liệu chunks...</div>
+                        </div>
+                    `;
+                    chunksModal.show();
+
+                    fetch('/Document/GetChunks?id=' + docId)
+                        .then(response => {
+                            if (!response.ok) throw new Error("Không thể tải dữ liệu chunks.");
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.length === 0) {
+                                container.innerHTML = `<div class="text-center py-4 text-muted">Tài liệu chưa được chia nhỏ hoặc dữ liệu rỗng.</div>`;
+                                return;
+                            }
+
+                            container.innerHTML = '';
+                            data.forEach(function(chunk) {
+                                var card = document.createElement('div');
+                                card.className = 'card p-3 border-0 rounded-3 shadow-sm';
+                                card.style.background = '#f8fafc';
+                                card.style.borderLeft = '4px solid #4f46e5';
+
+                                card.innerHTML = `
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-indigo" style="font-size: 0.9rem;">Phân đoạn #${chunk.chunkIndex + 1}</span>
+                                        ${chunk.hasEmbedding ? `
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                <i class="fa-solid fa-circle-check me-1"></i> Đã nhúng Vector
+                                            </span>
+                                        ` : `
+                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                Chưa có Vector
+                                            </span>
+                                        `}
+                                    </div>
+                                    <div class="text-dark" style="font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; font-family: system-ui, -apple-system, sans-serif;">${chunk.content}</div>
+                                `;
+                                container.appendChild(card);
+                            });
+                        })
+                        .catch(err => {
+                            container.innerHTML = `<div class="text-center py-4 text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> Lỗi: ${err.message}</div>`;
+                        });
+                }
+            });
         });
 
         // Tự động cập nhật trạng thái xử lý file (AJAX Polling)
@@ -251,6 +350,12 @@
                                         <i class="fa-solid fa-circle-check me-1"></i> Đã xử lý
                                     </span>
                                 `;
+
+                                // Đồng thời hiển thị nút xem chunks
+                                var chunkBtn = document.querySelector('.btn-view-chunks[data-id="' + item.id + '"]');
+                                if (chunkBtn) {
+                                    chunkBtn.style.setProperty('display', 'inline-flex', 'important');
+                                }
                             }
                         });
 

@@ -21,6 +21,13 @@ namespace RAGChatBot.Infrastructure.Persistence.Repositories
             return await _context.KnowledgeDocuments.FindAsync(id);
         }
 
+        public async Task<KnowledgeDocument?> GetByIdWithChunksAsync(System.Guid id)
+        {
+            return await _context.KnowledgeDocuments
+                .Include(d => d.Chunks)
+                .FirstOrDefaultAsync(d => d.Id == id);
+        }
+
         public async Task<IEnumerable<KnowledgeDocument>> GetByCourseCodeAsync(string courseCode)
         {
             return await _context.KnowledgeDocuments

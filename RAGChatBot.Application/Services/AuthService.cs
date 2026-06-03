@@ -2,6 +2,8 @@ using RAGChatBot.Application.Common.Interfaces;
 using RAGChatBot.Application.DTOs;
 using RAGChatBot.Domain.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RAGChatBot.Application.Services
@@ -39,7 +41,7 @@ namespace RAGChatBot.Application.Services
             var existingUser = await _userRepository.GetByUsernameAsync(username);
             if (existingUser != null)
             {
-                throw new Exception("Username already exists.");
+                throw new Exception("Tên tài khoản này đã tồn tại trong hệ thống!");
             }
 
             var user = new User
@@ -76,6 +78,19 @@ namespace RAGChatBot.Application.Services
             return true;
         }
 
+        public async Task<bool> ToggleSubscriptionTierAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.SubscriptionTier = user.SubscriptionTier == "Premium" ? "Free" : "Premium";
+            await _userRepository.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<UserDto?> GetUserByUsernameAsync(string username)
         {
             var user = await _userRepository.GetByUsernameAsync(username);
@@ -87,6 +102,36 @@ namespace RAGChatBot.Application.Services
                 Role = user.Role,
                 SubscriptionTier = user.SubscriptionTier
             };
+        }
+
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _userRepository.GetAllAsync();
+            return users.Select(user => new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Role = user.Role,
+                SubscriptionTier = user.SubscriptionTier
+            }).OrderBy(u => u.Role).ThenBy(u => u.Username);
+        }
+
+        public async Task DeleteUserAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy tài khoản người dùng cần xóa!");
+            }
+
+            // Bảo mật: Không cho phép tự xóa tài khoản Admin để tránh mất quyền quản trị
+            if (user.Role == "Admin")
+            {
+                throw new InvalidOperationException("Không được phép xóa tài khoản quản trị hệ thống (Admin)!");
+            }
+
+            await _userRepository.DeleteAsync(user);
+            await _userRepository.SaveChangesAsync();
         }
     }
 }

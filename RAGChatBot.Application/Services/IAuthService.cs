@@ -1,4 +1,6 @@
 using RAGChatBot.Application.DTOs;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RAGChatBot.Application.Services
@@ -8,6 +10,9 @@ namespace RAGChatBot.Application.Services
         Task<UserDto?> LoginAsync(LoginRequest request);
         Task<UserDto> RegisterAsync(string username, string password, string role, string subscriptionTier);
         Task<bool> UpgradeToPremiumAsync(Guid userId);
+        Task<bool> ToggleSubscriptionTierAsync(Guid userId);
         Task<UserDto?> GetUserByUsernameAsync(string username);
+        Task<IEnumerable<UserDto>> GetAllUsersAsync();
+        Task DeleteUserAsync(Guid userId);
     }
 }

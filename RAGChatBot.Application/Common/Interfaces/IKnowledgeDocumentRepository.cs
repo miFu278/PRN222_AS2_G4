@@ -7,6 +7,7 @@ namespace RAGChatBot.Application.Common.Interfaces
     public interface IKnowledgeDocumentRepository
     {
         Task<KnowledgeDocument?> GetByIdAsync(System.Guid id);
+        Task<KnowledgeDocument?> GetByIdWithChunksAsync(System.Guid id);
         Task<IEnumerable<KnowledgeDocument>> GetByCourseCodeAsync(string courseCode);
         Task AddAsync(KnowledgeDocument document);
         Task DeleteAsync(KnowledgeDocument document);

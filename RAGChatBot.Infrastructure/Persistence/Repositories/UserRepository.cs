@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RAGChatBot.Application.Common.Interfaces;
 using RAGChatBot.Domain.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RAGChatBot.Infrastructure.Persistence.Repositories
@@ -28,6 +29,17 @@ namespace RAGChatBot.Infrastructure.Persistence.Repositories
         public async Task AddAsync(User user)
         {
             await _context.Users.AddAsync(user);
+        }
+
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task DeleteAsync(User user)
+        {
+            _context.Users.Remove(user);
+            await Task.CompletedTask;
         }
 
         public async Task SaveChangesAsync()

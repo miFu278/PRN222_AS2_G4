@@ -31,50 +31,15 @@ namespace RAGChatBot.Presentation.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            return View();
+            // Vô hiệu hóa đăng ký tự do ngoài trang login
+            return RedirectToAction("Login");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public IActionResult Register(RegisterRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(request);
-            }
-
-            try
-            {
-                var userDto = await _authService.RegisterAsync(request.Username, request.Password, request.Role, request.SubscriptionTier);
-                
-                // Ghi nhận thông tin Claims
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                    new Claim(ClaimTypes.Name, userDto.Username),
-                    new Claim(ClaimTypes.Role, userDto.Role),
-                    new Claim("SubscriptionTier", userDto.SubscriptionTier)
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(2)
-                };
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
-
-                return RedirectToAction("Index", "Home");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(request);
-            }
+            // Vô hiệu hóa đăng ký tự do ngoài trang login
+            return RedirectToAction("Login");
         }
 
         [HttpPost]
@@ -112,6 +77,11 @@ namespace RAGChatBot.Presentation.Controllers
             };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+            if (userDto.Role == "Admin")
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
@@ -200,6 +170,11 @@ namespace RAGChatBot.Presentation.Controllers
 
             // Đăng nhập người dùng bằng cookie của hệ thống
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+            if (userDto.Role == "Admin")
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {

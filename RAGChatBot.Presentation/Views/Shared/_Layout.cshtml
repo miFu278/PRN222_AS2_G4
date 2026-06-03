@@ -207,18 +207,26 @@
         </div>
         
         <div class="sidebar-content">
-            <a asp-controller="Home" asp-action="Index" class="nav-item-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
-                <i class="fa-regular fa-message"></i> Màn hình Chat
-            </a>
-            
             @if (User.Identity?.IsAuthenticated == true)
             {
                 var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-                var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == "Course" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Document";
-                <a asp-controller="Course" asp-action="Index" class="nav-item-custom @(isActive ? "active" : "")">
-                    <i class="fa-regular fa-folder-open"></i> 
-                    Môn Học
-                </a>
+                if (role == "Admin")
+                {
+                    <a asp-controller="Admin" asp-action="Index" class="nav-item-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")">
+                        <i class="fa-solid fa-users-gear"></i> Quản lý Tài khoản
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index" class="nav-item-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
+                        <i class="fa-regular fa-message"></i> Màn hình Chat
+                    </a>
+                    
+                    var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == "Course" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Document";
+                    <a asp-controller="Course" asp-action="Index" class="nav-item-custom @(isActive ? "active" : "")">
+                        <i class="fa-regular fa-folder-open"></i> Môn Học
+                    </a>
+                }
             }
         </div>
 
@@ -237,7 +245,7 @@
                     </div>
                 </div>
                 
-                @if (tier == "Free")
+                @if (role != "Admin" && tier == "Free")
                 {
                     <a asp-controller="Subscription" asp-action="Index" class="btn w-100 fw-bold text-white mt-2 mb-1" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); border-radius: 8px; font-size: 0.85rem; padding: 8px;">
                         <i class="fa-solid fa-crown me-1" style="color: #fde047;"></i> Nâng cấp Premium

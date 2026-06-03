@@ -107,6 +107,24 @@ namespace RAGChatBot.Application.Services
             await _documentRepository.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<ChunkDto>> GetDocumentChunksAsync(Guid documentId)
+        {
+            var document = await _documentRepository.GetByIdWithChunksAsync(documentId);
+            if (document == null)
+            {
+                return Enumerable.Empty<ChunkDto>();
+            }
+
+            return document.Chunks
+                .OrderBy(c => c.ChunkIndex)
+                .Select(c => new ChunkDto
+                {
+                    ChunkIndex = c.ChunkIndex,
+                    Content = c.Content,
+                    HasEmbedding = c.Embedding != null
+                });
+        }
+
         private static DocumentDto MapToDto(KnowledgeDocument doc)
         {
             return new DocumentDto
