@@ -13,6 +13,7 @@ namespace RAGChatBot.Infrastructure.Persistence
         public DbSet<KnowledgeDocument> KnowledgeDocuments => Set<KnowledgeDocument>();
         public DbSet<Course> Courses => Set<Course>();
         public DbSet<DocumentChunk> DocumentChunks => Set<DocumentChunk>();
+        public DbSet<WhitelistEmail> WhitelistEmails => Set<WhitelistEmail>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,6 +21,12 @@ namespace RAGChatBot.Infrastructure.Persistence
 
             // Kích hoạt extension pgvector trong PostgreSQL
             modelBuilder.HasPostgresExtension("vector");
+
+            modelBuilder.Entity<WhitelistEmail>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Email).IsUnique();
+            });
 
             modelBuilder.Entity<User>(entity =>
             {

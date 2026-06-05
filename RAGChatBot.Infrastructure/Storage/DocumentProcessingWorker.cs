@@ -54,9 +54,9 @@ namespace RAGChatBot.Infrastructure.Storage
             using var scope = _serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            // 1. Quét tìm tài liệu chưa được xử lý
+            // 1. Quét tìm tài liệu chưa được xử lý VÀ đã được phê duyệt
             var document = dbContext.KnowledgeDocuments
-                .Where(d => !d.IsProcessed)
+                .Where(d => !d.IsProcessed && d.IsApproved)
                 .OrderBy(d => d.UploadedAt)
                 .FirstOrDefault();
 

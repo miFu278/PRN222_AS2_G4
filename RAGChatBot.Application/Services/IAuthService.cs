@@ -8,7 +8,7 @@ namespace RAGChatBot.Application.Services
     public interface IAuthService
     {
         Task<UserDto?> LoginAsync(LoginRequest request);
-        Task<UserDto> RegisterAsync(string username, string password, string role, string subscriptionTier);
+        Task<UserDto> RegisterAsync(string username, string password, string role, string subscriptionTier, string fullName);
         Task<bool> UpgradeToPremiumAsync(Guid userId);
         Task<bool> ToggleSubscriptionTierAsync(Guid userId);
         Task<UserDto?> GetUserByUsernameAsync(string username);

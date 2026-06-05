@@ -13,13 +13,19 @@ namespace RAGChatBot.Application.Services
     {
         private readonly IFileStorageService _fileStorageService;
         private readonly IKnowledgeDocumentRepository _documentRepository;
+        private readonly ICourseRepository _courseRepository;
+        private readonly IUserRepository _userRepository;
 
         public DocumentService(
             IFileStorageService fileStorageService,
-            IKnowledgeDocumentRepository documentRepository)
+            IKnowledgeDocumentRepository documentRepository,
+            ICourseRepository courseRepository,
+            IUserRepository userRepository)
         {
             _fileStorageService = fileStorageService;
             _documentRepository = documentRepository;
+            _courseRepository = courseRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<DocumentDto> UploadDocumentAsync(
@@ -52,7 +58,21 @@ namespace RAGChatBot.Application.Services
             // 3. Save physical file in parallel / synchronously
             var relativePath = await _fileStorageService.SaveFileAsync(fileStream, fileName);
 
-            // 4. Save metadata to DB using repository
+            // 4. Check if the uploader is the Subject Leader or Admin -> auto approve
+            var user = await _userRepository.GetByIdAsync(userId);
+            var isApproved = false;
+            
+            var courses = await _courseRepository.GetAllAsync();
+            var course = courses.FirstOrDefault(c => c.Code.Equals(courseCode, StringComparison.OrdinalIgnoreCase));
+            if (course != null)
+            {
+                if (userId == course.SubjectLeaderId || (user != null && user.Role == "Admin"))
+                {
+                    isApproved = true;
+                }
+            }
+
+            // 5. Save metadata to DB using repository
             var document = new KnowledgeDocument
             {
                 Id = Guid.NewGuid(),
@@ -63,19 +83,39 @@ namespace RAGChatBot.Application.Services
                 FileSize = fileSize,
                 UploadedAt = DateTime.UtcNow,
                 UploadedBy = userId,
-                IsProcessed = false // default
+                IsProcessed = false,
+                IsApproved = isApproved
             };
 
             await _documentRepository.AddAsync(document);
             await _documentRepository.SaveChangesAsync();
 
-            return MapToDto(document);
+            var uploaderName = user?.Username ?? "N/A";
+            var dto = MapToDto(document);
+            dto.UploaderName = uploaderName;
+            return dto;
         }
 
         public async Task<IEnumerable<DocumentDto>> GetDocumentsByCourseAsync(string courseCode)
         {
             var docs = await _documentRepository.GetByCourseCodeAsync(courseCode);
-            return docs.Select(MapToDto).OrderByDescending(d => d.UploadedAt);
+            var users = await _userRepository.GetAllAsync();
+            var userMap = users.ToDictionary(u => u.Id, u => u.Username);
+
+            return docs.Select(doc => new DocumentDto
+            {
+                Id = doc.Id,
+                FileName = doc.FileName,
+                StoragePath = doc.StoragePath,
+                CourseCode = doc.CourseCode,
+                Chapter = doc.Chapter,
+                FileSize = doc.FileSize,
+                UploadedAt = doc.UploadedAt,
+                UploadedBy = doc.UploadedBy,
+                IsProcessed = doc.IsProcessed,
+                IsApproved = doc.IsApproved,
+                UploaderName = userMap.TryGetValue(doc.UploadedBy, out var name) ? name : "N/A"
+            }).OrderByDescending(d => d.UploadedAt);
         }
 
         public async Task DeleteDocumentAsync(Guid id, Guid userId, string userRole)
@@ -104,6 +144,31 @@ namespace RAGChatBot.Application.Services
 
             // 2. Xóa bản ghi siêu dữ liệu trong DB
             await _documentRepository.DeleteAsync(document);
+            await _documentRepository.SaveChangesAsync();
+        }
+
+        public async Task ApproveDocumentAsync(Guid id, Guid userId, string userRole)
+        {
+            var document = await _documentRepository.GetByIdAsync(id);
+            if (document == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy tài liệu cần phê duyệt!");
+            }
+
+            var courses = await _courseRepository.GetAllAsync();
+            var course = courses.FirstOrDefault(c => c.Code.Equals(document.CourseCode, StringComparison.OrdinalIgnoreCase));
+            if (course == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy môn học liên quan đến tài liệu!");
+            }
+
+            // Kiểm tra quyền duyệt: Chỉ Trưởng bộ môn của môn đó hoặc Admin mới được duyệt
+            if (course.SubjectLeaderId != userId && userRole != "Admin")
+            {
+                throw new UnauthorizedAccessException("Bạn không có quyền phê duyệt tài liệu cho môn học này!");
+            }
+
+            document.IsApproved = true;
             await _documentRepository.SaveChangesAsync();
         }
 
@@ -137,7 +202,8 @@ namespace RAGChatBot.Application.Services
                 FileSize = doc.FileSize,
                 UploadedAt = doc.UploadedAt,
                 UploadedBy = doc.UploadedBy,
-                IsProcessed = doc.IsProcessed
+                IsProcessed = doc.IsProcessed,
+                IsApproved = doc.IsApproved
             };
         }
     }

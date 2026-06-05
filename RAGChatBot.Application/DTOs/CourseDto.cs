@@ -7,5 +7,7 @@ namespace RAGChatBot.Application.DTOs
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
+        public Guid? SubjectLeaderId { get; set; }
+        public string? SubjectLeaderName { get; set; }
     }
 }

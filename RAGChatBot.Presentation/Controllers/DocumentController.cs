@@ -11,11 +11,13 @@ namespace RAGChatBot.Presentation.Controllers
     public class DocumentController : Controller
     {
         private readonly IDocumentService _documentService;
+        private readonly ICourseService _courseService;
         private readonly ILogger<DocumentController> _logger;
 
-        public DocumentController(IDocumentService documentService, ILogger<DocumentController> logger)
+        public DocumentController(IDocumentService documentService, ICourseService courseService, ILogger<DocumentController> logger)
         {
             _documentService = documentService;
+            _courseService = courseService;
             _logger = logger;
         }
 
@@ -26,6 +28,16 @@ namespace RAGChatBot.Presentation.Controllers
             try
             {
                 var documents = await _documentService.GetDocumentsByCourseAsync(courseCode);
+
+                // Kiểm tra xem user hiện tại có phải là Subject Leader của môn học không
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var isSubjectLeader = false;
+                if (Guid.TryParse(userIdStr, out var userId))
+                {
+                    isSubjectLeader = await _courseService.IsSubjectLeaderAsync(courseCode, userId);
+                }
+                ViewBag.IsSubjectLeader = isSubjectLeader;
+
                 return View(documents);
             }
             catch (Exception ex)
@@ -37,7 +49,7 @@ namespace RAGChatBot.Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Lecturer,Admin")]
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Upload(IFormFile file, string courseCode, string chapter)
         {
             if (file == null || file.Length == 0)
@@ -110,6 +122,33 @@ namespace RAGChatBot.Presentation.Controllers
             {
                 _logger.LogError(ex, "Lỗi xảy ra khi xóa tài liệu {Id}", id);
                 TempData["ErrorMessage"] = $"Lỗi khi xóa tài liệu: {ex.Message}";
+            }
+
+            return RedirectToAction("Index", new { courseCode });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Lecturer,Admin")]
+        public async Task<IActionResult> Approve(Guid id, string courseCode)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userRole = User.FindFirstValue(ClaimTypes.Role) ?? "Lecturer";
+
+            if (!Guid.TryParse(userIdStr, out var userId))
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy thông tin định danh người dùng hợp lệ!";
+                return RedirectToAction("Index", new { courseCode });
+            }
+
+            try
+            {
+                await _documentService.ApproveDocumentAsync(id, userId, userRole);
+                TempData["SuccessMessage"] = "Đã phê duyệt tài liệu thành công!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi duyệt tài liệu {DocId}", id);
+                TempData["ErrorMessage"] = $"Lỗi khi duyệt tài liệu: {ex.Message}";
             }
 
             return RedirectToAction("Index", new { courseCode });

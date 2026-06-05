@@ -38,5 +38,22 @@ namespace RAGChatBot.Infrastructure.Persistence.Repositories
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task<Course?> GetByIdAsync(System.Guid id)
+        {
+            return await _context.Courses.FindAsync(id);
+        }
+
+        public async Task UpdateAsync(Course course)
+        {
+            _context.Courses.Update(course);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Course course)
+        {
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+        }
     }
 }

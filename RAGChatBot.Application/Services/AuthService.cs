@@ -32,11 +32,12 @@ namespace RAGChatBot.Application.Services
                 Id = user.Id,
                 Username = user.Username,
                 Role = user.Role,
-                SubscriptionTier = user.SubscriptionTier
+                SubscriptionTier = user.SubscriptionTier,
+                FullName = user.FullName
             };
         }
 
-        public async Task<UserDto> RegisterAsync(string username, string password, string role, string subscriptionTier)
+        public async Task<UserDto> RegisterAsync(string username, string password, string role, string subscriptionTier, string fullName)
         {
             var existingUser = await _userRepository.GetByUsernameAsync(username);
             if (existingUser != null)
@@ -50,7 +51,8 @@ namespace RAGChatBot.Application.Services
                 Username = username,
                 PasswordHash = _passwordHasher.Hash(password),
                 Role = role,
-                SubscriptionTier = subscriptionTier
+                SubscriptionTier = subscriptionTier,
+                FullName = fullName.Trim()
             };
 
             await _userRepository.AddAsync(user);
@@ -61,7 +63,8 @@ namespace RAGChatBot.Application.Services
                 Id = user.Id,
                 Username = user.Username,
                 Role = user.Role,
-                SubscriptionTier = user.SubscriptionTier
+                SubscriptionTier = user.SubscriptionTier,
+                FullName = user.FullName
             };
         }
 
@@ -100,7 +103,8 @@ namespace RAGChatBot.Application.Services
                 Id = user.Id,
                 Username = user.Username,
                 Role = user.Role,
-                SubscriptionTier = user.SubscriptionTier
+                SubscriptionTier = user.SubscriptionTier,
+                FullName = user.FullName
             };
         }
 
@@ -112,7 +116,8 @@ namespace RAGChatBot.Application.Services
                 Id = user.Id,
                 Username = user.Username,
                 Role = user.Role,
-                SubscriptionTier = user.SubscriptionTier
+                SubscriptionTier = user.SubscriptionTier,
+                FullName = user.FullName
             }).OrderBy(u => u.Role).ThenBy(u => u.Username);
         }
 

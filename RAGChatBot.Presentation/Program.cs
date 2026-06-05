@@ -36,6 +36,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IWhitelistService, WhitelistService>();
 
 // Tầng Infrastructure Services
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IFileStorageService, SupabaseFileStorageService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IKnowledgeDocumentRepository, KnowledgeDocumentRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IWhitelistRepository, WhitelistRepository>();
 
 // Đăng ký dịch vụ RAG & AI (Tự động Chunking & Vector hóa)
 builder.Services.AddHttpClient();

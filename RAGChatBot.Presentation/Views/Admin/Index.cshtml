@@ -64,9 +64,12 @@
                         <td>
                             <div class="d-flex align-items-center gap-3">
                                 <div class="user-avatar-sm" style="width: 32px; height: 32px; border-radius: 50%; background: @(user.Role == "Admin" ? "#4f46e5" : user.Role == "Lecturer" ? "#ca8a04" : "#0284c7"); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem;">
-                                    @user.Username.Substring(0, 1).ToUpper()
+                                    @(string.IsNullOrEmpty(user.FullName) ? user.Username.Substring(0, 1).ToUpper() : user.FullName.Substring(0, 1).ToUpper())
                                 </div>
-                                <span class="fw-semibold text-dark">@user.Username</span>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-semibold text-dark">@(string.IsNullOrEmpty(user.FullName) ? "Chưa cập nhật" : user.FullName)</span>
+                                    <small class="text-muted" style="font-size: 0.8rem;">@user.Username</small>
+                                </div>
                             </div>
                         </td>
                         <td>
@@ -148,6 +151,11 @@
             
             <form asp-action="Create" method="post">
                 <div class="modal-body px-4 py-3">
+                    <div class="mb-3">
+                        <label for="fullNameInput" class="form-label">Họ và Tên</label>
+                        <input type="text" class="form-control form-control-custom" id="fullNameInput" name="fullName" placeholder="Ví dụ: Nguyễn Văn A" required />
+                    </div>
+
                     <div class="mb-3">
                         <label for="usernameInput" class="form-label">Tên tài khoản (Username hoặc Email)</label>
                         <input type="text" class="form-control form-control-custom" id="usernameInput" name="username" placeholder="Ví dụ: nguyenvanA hoặc vanA@school.edu.vn" required />

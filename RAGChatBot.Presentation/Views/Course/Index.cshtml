@@ -42,6 +42,14 @@
         </div>
     }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="row g-4">
         @if (!Model.Any())
         {
@@ -65,7 +73,29 @@
                             <p class="card-text text-muted flex-grow-1" style="font-size: 0.95rem;">
                                 @(string.IsNullOrEmpty(course.Description) ? "Không có mô tả chi tiết." : course.Description)
                             </p>
-                            <div class="mt-3">
+                            
+                            <div class="mt-2 mb-3">
+                                <span class="d-block text-muted" style="font-size: 0.85rem;">
+                                    <i class="fa-solid fa-user-tie text-indigo me-1"></i> Trưởng bộ môn: <strong class="text-dark">@course.SubjectLeaderName</strong>
+                                </span>
+                            </div>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="d-flex gap-2 mb-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary flex-grow-1 btn-edit-course" data-bs-toggle="modal" data-bs-target="#editCourseModal" data-id="@course.Id" data-code="@course.Code" data-name="@course.Name" data-description="@course.Description" data-leader-id="@course.SubjectLeaderId" style="border-radius: 8px; font-size: 0.8rem; font-weight: 500;">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> Sửa
+                                    </button>
+                                    <form asp-action="Delete" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa môn học @course.Code? Hành động này sẽ XÓA VĨNH VIỄN môn học này cùng toàn bộ tài liệu giảng dạy liên quan!');" class="flex-grow-1">
+                                        <input type="hidden" name="id" value="@course.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100" style="border-radius: 8px; font-size: 0.8rem; font-weight: 500;">
+                                            <i class="fa-solid fa-trash-can me-1"></i> Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+
+                            <div class="mt-1">
                                 <a asp-controller="Document" asp-action="Index" asp-route-courseCode="@course.Code" class="btn btn-outline-primary w-100" style="border-radius: 8px; font-weight: 500;">
                                     <i class="fa-regular fa-folder-open me-2"></i>Vào kho tài liệu
                                 </a>
@@ -77,3 +107,100 @@
         }
     </div>
 </div>
+
+<!-- Modal Chỉnh sửa Môn học (chỉ dành cho Admin) -->
+@if (User.IsInRole("Admin"))
+{
+    <div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4" style="background: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+                <div class="modal-header border-bottom-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-dark" id="editCourseModalLabel">
+                        <i class="fa-solid fa-pen-to-square text-indigo me-2"></i>Chỉnh Sửa Môn Học
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <form asp-action="Edit" method="post">
+                    <div class="modal-body px-4 py-3">
+                        <input type="hidden" id="editModalCourseId" name="Id" />
+                        
+                        <div class="mb-3">
+                            <label for="editModalCourseCode" class="form-label fw-semibold">Mã môn học <span class="text-danger">*</span></label>
+                            <input type="text" id="editModalCourseCode" name="Code" class="form-control" style="border-radius: 8px; padding: 10px 15px;" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editModalCourseName" class="form-label fw-semibold">Tên môn học <span class="text-danger">*</span></label>
+                            <input type="text" id="editModalCourseName" name="Name" class="form-control" style="border-radius: 8px; padding: 10px 15px;" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editModalLeaderSelect" class="form-label fw-semibold">Trưởng bộ môn (Subject Leader) <span class="text-danger">*</span></label>
+                            <select id="editModalLeaderSelect" name="SubjectLeaderId" class="form-select" style="border-radius: 8px; padding: 10px 15px;" required>
+                                <option value="">-- Chọn Trưởng bộ môn --</option>
+                                @if (ViewBag.Lecturers != null)
+                                {
+                                    foreach (var lecturer in (IEnumerable<RAGChatBot.Application.DTOs.UserDto>)ViewBag.Lecturers)
+                                    {
+                                        <option value="@lecturer.Id">@(string.IsNullOrEmpty(lecturer.FullName) ? lecturer.Username : lecturer.FullName) (@(lecturer.Role == "Admin" ? "Admin" : "Giảng viên"))</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editModalCourseDesc" class="form-label fw-semibold">Mô tả môn học</label>
+                            <textarea id="editModalCourseDesc" name="Description" class="form-control" rows="3" style="border-radius: 8px; padding: 10px 15px;"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer border-top-0 pb-4 px-4 gap-2">
+                        <button type="button" class="btn btn-outline-secondary py-2 px-3 rounded-3" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary py-2 px-4 shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); border: none; border-radius: 8px; font-weight: 600; color: white;">
+                            <i class="fa-solid fa-circle-check me-1"></i> Lưu Thay Đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @if (User.IsInRole("Admin"))
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var editCourseIdInput = document.getElementById('editModalCourseId');
+                var editCourseCodeInput = document.getElementById('editModalCourseCode');
+                var editCourseNameInput = document.getElementById('editModalCourseName');
+                var editCourseLeaderSelect = document.getElementById('editModalLeaderSelect');
+                var editCourseDescInput = document.getElementById('editModalCourseDesc');
+
+                // Bắt sự kiện click vào nút Chỉnh sửa môn học
+                document.querySelectorAll('.btn-edit-course').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        var id = this.getAttribute('data-id');
+                        var code = this.getAttribute('data-code');
+                        var name = this.getAttribute('data-name');
+                        var description = this.getAttribute('data-description');
+                        var leaderId = this.getAttribute('data-leader-id');
+
+                        editCourseIdInput.value = id;
+                        editCourseCodeInput.value = code;
+                        editCourseNameInput.value = name;
+                        editCourseDescInput.value = description || "";
+                        
+                        // Thiết lập value cho select dropdown
+                        if (leaderId) {
+                            editCourseLeaderSelect.value = leaderId;
+                        } else {
+                            editCourseLeaderSelect.value = "";
+                        }
+                    });
+                });
+            });
+        </script>
+    }
+}

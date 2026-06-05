@@ -31,6 +31,21 @@
                             <span asp-validation-for="Name" class="text-danger small"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <label asp-for="SubjectLeaderId" class="form-label fw-semibold">Trưởng bộ môn (Subject Leader) <span class="text-danger">*</span></label>
+                            <select asp-for="SubjectLeaderId" class="form-select" style="border-radius: 8px; padding: 10px 15px;" required>
+                                <option value="">-- Chọn Trưởng bộ môn --</option>
+                                @if (ViewBag.Lecturers != null)
+                                {
+                                    foreach (var lecturer in (IEnumerable<RAGChatBot.Application.DTOs.UserDto>)ViewBag.Lecturers)
+                                    {
+                                        <option value="@lecturer.Id">@(string.IsNullOrEmpty(lecturer.FullName) ? lecturer.Username : lecturer.FullName) (@(lecturer.Role == "Admin" ? "Admin" : "Giảng viên"))</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="SubjectLeaderId" class="text-danger small"></span>
+                        </div>
+
                         <div class="mb-4">
                             <label asp-for="Description" class="form-label fw-semibold">Mô tả chi tiết</label>
                             <textarea asp-for="Description" class="form-control" rows="4" placeholder="Nhập mô tả môn học..." style="border-radius: 8px; padding: 10px 15px;"></textarea>

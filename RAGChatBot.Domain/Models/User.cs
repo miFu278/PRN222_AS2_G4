@@ -7,6 +7,7 @@ namespace RAGChatBot.Domain.Models
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = "Lecturer"; // Lecturer, Admin
         public string SubscriptionTier { get; set; } = "Free"; // Free, Premium
+        public string FullName { get; set; } = string.Empty;
     }
 }
 

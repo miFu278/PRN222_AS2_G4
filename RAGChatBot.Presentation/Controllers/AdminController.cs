@@ -11,11 +11,13 @@ namespace RAGChatBot.Presentation.Controllers
     public class AdminController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IWhitelistService _whitelistService;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IAuthService authService, ILogger<AdminController> logger)
+        public AdminController(IAuthService authService, IWhitelistService whitelistService, ILogger<AdminController> logger)
         {
             _authService = authService;
+            _whitelistService = whitelistService;
             _logger = logger;
         }
 
@@ -36,18 +38,18 @@ namespace RAGChatBot.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string username, string password, string role, string subscriptionTier)
+        public async Task<IActionResult> Create(string username, string password, string role, string subscriptionTier, string fullName)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(fullName))
             {
-                TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ tên tài khoản và mật khẩu!";
+                TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ họ tên, tên tài khoản và mật khẩu!";
                 return RedirectToAction(nameof(Index));
             }
 
             try
             {
-                await _authService.RegisterAsync(username.Trim(), password, role, subscriptionTier);
-                TempData["SuccessMessage"] = $"Đã tạo thành công tài khoản '{username}' với vai trò {role}!";
+                await _authService.RegisterAsync(username.Trim(), password, role, subscriptionTier, fullName.Trim());
+                TempData["SuccessMessage"] = $"Đã tạo thành công tài khoản '{fullName}' với vai trò {role}!";
             }
             catch (Exception ex)
             {
@@ -108,6 +110,95 @@ namespace RAGChatBot.Presentation.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Whitelist()
+        {
+            try
+            {
+                var whitelist = await _whitelistService.GetAllAsync();
+                return View(whitelist);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy danh sách Whitelist cho Admin Dashboard");
+                TempData["ErrorMessage"] = "Không thể tải danh sách Whitelist: " + ex.Message;
+                return View(new System.Collections.Generic.List<WhitelistEmailDto>());
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddToWhitelist(string email, string? fullName, string? studentId)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                TempData["ErrorMessage"] = "Email không được để trống!";
+                return RedirectToAction(nameof(Whitelist));
+            }
+
+            try
+            {
+                await _whitelistService.AddAsync(email.Trim(), fullName, studentId);
+                TempData["SuccessMessage"] = $"Đã thêm email '{email}' vào Whitelist thành công!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi Admin thêm email vào whitelist: {Email}", email);
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Whitelist));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFromWhitelist(Guid id)
+        {
+            try
+            {
+                await _whitelistService.DeleteAsync(id);
+                TempData["SuccessMessage"] = "Đã xóa email khỏi Whitelist thành công!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi xóa email khỏi whitelist: {Id}", id);
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Whitelist));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ImportWhitelist(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn một file Excel (.xlsx hoặc .xls)!";
+                return RedirectToAction(nameof(Whitelist));
+            }
+
+            var extension = System.IO.Path.GetExtension(file.FileName).ToLower();
+            if (extension != ".xlsx" && extension != ".xls")
+            {
+                TempData["ErrorMessage"] = "Định dạng file không được hỗ trợ! Vui lòng chọn file Excel (.xlsx hoặc .xls).";
+                return RedirectToAction(nameof(Whitelist));
+            }
+
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    var count = await _whitelistService.ImportFromExcelAsync(stream);
+                    TempData["SuccessMessage"] = $"Import thành công {count} email vào danh sách Whitelist!";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi import file whitelist Excel");
+                TempData["ErrorMessage"] = "Lỗi khi import file Excel: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Whitelist));
         }
     }
 }

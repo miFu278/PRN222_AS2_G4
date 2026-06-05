@@ -11,10 +11,12 @@ namespace RAGChatBot.Presentation.Controllers
     public class AccountController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IWhitelistService _whitelistService;
 
-        public AccountController(IAuthService authService)
+        public AccountController(IAuthService authService, IWhitelistService whitelistService)
         {
             _authService = authService;
+            _whitelistService = whitelistService;
         }
 
         [HttpGet]
@@ -64,7 +66,7 @@ namespace RAGChatBot.Presentation.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                new Claim(ClaimTypes.Name, userDto.Username),
+                new Claim(ClaimTypes.Name, !string.IsNullOrEmpty(userDto.FullName) ? userDto.FullName : userDto.Username),
                 new Claim(ClaimTypes.Role, userDto.Role),
                 new Claim("SubscriptionTier", userDto.SubscriptionTier)
             };
@@ -148,15 +150,27 @@ namespace RAGChatBot.Presentation.Controllers
             
             if (userDto == null)
             {
+                // Kiểm tra xem email có hợp lệ không (đuôi FPT hoặc nằm trong Whitelist)
+                bool isAllowed = email.EndsWith("@fpt.edu.vn", StringComparison.OrdinalIgnoreCase) || 
+                                 email.EndsWith("@fe.edu.vn", StringComparison.OrdinalIgnoreCase) || 
+                                 await _whitelistService.IsEmailWhitelistedAsync(email);
+
+                if (!isAllowed)
+                {
+                    ModelState.AddModelError(string.Empty, "Tài khoản của bạn chưa được cấp quyền truy cập hệ thống. Vui lòng liên hệ Admin!");
+                    return View("Login");
+                }
+
                 // Tự động đăng ký
+                var fullName = result.Principal.FindFirstValue(ClaimTypes.Name) ?? email.Split('@')[0];
                 var randomPassword = Guid.NewGuid().ToString(); // Google users won't use password
-                userDto = await _authService.RegisterAsync(email, randomPassword, "Student", "Free");
+                userDto = await _authService.RegisterAsync(email, randomPassword, "Student", "Free", fullName);
             }
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                new Claim(ClaimTypes.Name, userDto.Username),
+                new Claim(ClaimTypes.Name, !string.IsNullOrEmpty(userDto.FullName) ? userDto.FullName : userDto.Username),
                 new Claim(ClaimTypes.Role, userDto.Role),
                 new Claim("SubscriptionTier", userDto.SubscriptionTier)
             };

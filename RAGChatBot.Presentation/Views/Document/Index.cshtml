@@ -5,6 +5,7 @@
     var userTier = User.FindFirst("SubscriptionTier")?.Value ?? "Free";
     var maxUploadSize = userTier == "Premium" ? "50 MB" : "5 MB";
     var isLecturerOrAdmin = User.IsInRole("Lecturer") || User.IsInRole("Admin");
+    var isLecturer = User.IsInRole("Lecturer");
 }
 
 <div class="row">
@@ -44,7 +45,7 @@
 }
 
 <div class="row g-4">
-    @if (isLecturerOrAdmin)
+    @if (isLecturer)
     {
         <!-- Cột bên trái: Form Tải lên tài liệu -->
         <div class="col-xl-4 col-lg-5">
@@ -97,7 +98,7 @@
     }
     
     <!-- Cột bên phải: Danh sách tài liệu hiện có -->
-    <div class="@(isLecturerOrAdmin ? "col-xl-8 col-lg-7" : "col-12")">
+    <div class="@(isLecturer ? "col-xl-8 col-lg-7" : "col-12")">
         <div class="card-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold text-dark mb-0">
@@ -148,9 +149,14 @@
                                             {
                                                 <i class="fa-solid fa-file-word text-primary fs-5"></i>
                                             }
-                                            <span class="fw-semibold text-dark text-truncate d-inline-block" style="max-width: 250px;" title="@doc.FileName">
-                                                @doc.FileName
-                                            </span>
+                                            <div class="d-flex flex-column">
+                                                <span class="fw-semibold text-dark text-truncate d-inline-block" style="max-width: 250px;" title="@doc.FileName">
+                                                    @doc.FileName
+                                                </span>
+                                                <small class="text-muted" style="font-size: 0.75rem;">
+                                                    <i class="fa-regular fa-user me-0.5"></i> @(string.IsNullOrEmpty(doc.UploaderName) ? "Hệ thống" : doc.UploaderName)
+                                                </small>
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
@@ -162,8 +168,14 @@
                                     <td class="text-muted" style="font-size:0.85rem">
                                         @doc.UploadedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
                                     </td>
-                                    <td class="status-cell" data-id="@doc.Id" data-processed="@doc.IsProcessed.ToString().ToLower()">
-                                        @if (doc.IsProcessed)
+                                    <td class="status-cell" data-id="@doc.Id" data-processed="@doc.IsProcessed.ToString().ToLower()" data-approved="@doc.IsApproved.ToString().ToLower()">
+                                        @if (!doc.IsApproved)
+                                        {
+                                            <span class="status-badge bg-warning-subtle text-warning border border-warning-subtle" style="padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                                <i class="fa-solid fa-clock me-1"></i> Chờ duyệt
+                                            </span>
+                                        }
+                                        else if (doc.IsProcessed)
                                         {
                                             <span class="status-badge status-processed">
                                                 <i class="fa-solid fa-circle-check me-1"></i> Đã xử lý
@@ -172,12 +184,22 @@
                                         else
                                         {
                                             <span class="status-badge status-pending">
-                                                <i class="fa-solid fa-spinner fa-spin me-1"></i> Chờ xử lý
+                                                <i class="fa-solid fa-spinner fa-spin me-1"></i> Đang xử lý AI
                                             </span>
                                         }
                                     </td>
                                     <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-2">
+                                        <div class="d-flex justify-content-end gap-2 align-items-center">
+                                            @if (!doc.IsApproved && (ViewBag.IsSubjectLeader == true || User.IsInRole("Admin")))
+                                            {
+                                                <form asp-action="Approve" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="@doc.Id" />
+                                                    <input type="hidden" name="courseCode" value="@doc.CourseCode" />
+                                                    <button type="submit" class="btn btn-action-approve" title="Phê duyệt tài liệu" style="background: #ecfdf5; border: 1px solid #d1fae5; color: #10b981; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                                        <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                </form>
+                                            }
                                             @if (doc.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
                                             {
                                                 <a href="@doc.StoragePath" target="_blank" class="btn btn-action-view" title="Xem trực tiếp (PDF)">

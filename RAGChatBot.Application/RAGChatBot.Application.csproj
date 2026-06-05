@@ -10,4 +10,8 @@
     <ProjectReference Include="..\RAGChatBot.Domain\RAGChatBot.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MiniExcel" Version="1.44.1" />
+  </ItemGroup>
+
 </Project>

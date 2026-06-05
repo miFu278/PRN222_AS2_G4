@@ -10,10 +10,12 @@ namespace RAGChatBot.Presentation.Controllers
     public class CourseController : Controller
     {
         private readonly ICourseService _courseService;
+        private readonly IAuthService _authService;
 
-        public CourseController(ICourseService courseService)
+        public CourseController(ICourseService courseService, IAuthService authService)
         {
             _courseService = courseService;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -21,13 +23,24 @@ namespace RAGChatBot.Presentation.Controllers
         {
             ViewData["SearchKeyword"] = search;
             var courses = await _courseService.SearchCoursesAsync(search);
+
+            if (User.IsInRole("Admin"))
+            {
+                var users = await _authService.GetAllUsersAsync();
+                var lecturers = users.Where(u => u.Role == "Lecturer" || u.Role == "Admin").ToList();
+                ViewBag.Lecturers = lecturers;
+            }
+
             return View(courses);
         }
 
         [HttpGet]
         [Authorize(Roles = "Lecturer,Admin")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var users = await _authService.GetAllUsersAsync();
+            var lecturers = users.Where(u => u.Role == "Lecturer" || u.Role == "Admin").ToList();
+            ViewBag.Lecturers = lecturers;
             return View();
         }
 
@@ -58,6 +71,57 @@ namespace RAGChatBot.Presentation.Controllers
                 ModelState.AddModelError(string.Empty, $"Có lỗi xảy ra: {ex.Message}");
                 return View(request);
             }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AssignLeader(Guid courseId, Guid subjectLeaderId)
+        {
+            try
+            {
+                await _courseService.UpdateSubjectLeaderAsync(courseId, subjectLeaderId);
+                TempData["SuccessMessage"] = "Đã phân công Trưởng bộ môn mới thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Không thể phân công Trưởng bộ môn: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(CourseDto request)
+        {
+            try
+            {
+                await _courseService.UpdateCourseAsync(request);
+                TempData["SuccessMessage"] = $"Cập nhật môn học {request.Code} thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Không thể cập nhật môn học: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                await _courseService.DeleteCourseAsync(id);
+                TempData["SuccessMessage"] = "Đã xóa môn học và toàn bộ tài liệu liên quan thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Không thể xóa môn học: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

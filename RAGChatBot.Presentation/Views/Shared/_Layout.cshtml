@@ -212,8 +212,11 @@
                 var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
                 if (role == "Admin")
                 {
-                    <a asp-controller="Admin" asp-action="Index" class="nav-item-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")">
+                    <a asp-controller="Admin" asp-action="Index" class="nav-item-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
                         <i class="fa-solid fa-users-gear"></i> Quản lý Tài khoản
+                    </a>
+                    <a asp-controller="Admin" asp-action="Whitelist" class="nav-item-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() == "Whitelist" ? "active" : "")">
+                        <i class="fa-solid fa-user-shield"></i> Quản lý Whitelist
                     </a>
                 }
                 else
@@ -221,12 +224,12 @@
                     <a asp-controller="Home" asp-action="Index" class="nav-item-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
                         <i class="fa-regular fa-message"></i> Màn hình Chat
                     </a>
-                    
-                    var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == "Course" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Document";
-                    <a asp-controller="Course" asp-action="Index" class="nav-item-custom @(isActive ? "active" : "")">
-                        <i class="fa-regular fa-folder-open"></i> Môn Học
-                    </a>
                 }
+                
+                var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == "Course" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Document";
+                <a asp-controller="Course" asp-action="Index" class="nav-item-custom @(isActive ? "active" : "")">
+                    <i class="fa-regular fa-folder-open"></i> Môn Học
+                </a>
             }
         </div>
 

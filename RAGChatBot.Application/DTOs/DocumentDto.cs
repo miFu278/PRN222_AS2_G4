@@ -13,5 +13,7 @@ namespace RAGChatBot.Application.DTOs
         public DateTime UploadedAt { get; set; }
         public Guid UploadedBy { get; set; }
         public bool IsProcessed { get; set; }
+        public bool IsApproved { get; set; }
+        public string? UploaderName { get; set; }
     }
 }
