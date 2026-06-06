@@ -4,162 +4,262 @@
     var isLecturerOrAdmin = User.IsInRole("Lecturer") || User.IsInRole("Admin");
 }
 
-<div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<style>
+    .zen-course-list {
+        margin-top: 40px;
+        border-top: 1px solid var(--border-light);
+    }
+    
+    .zen-course-item {
+        padding: 40px 0;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        align-items: flex-start;
+        opacity: 0; /* GSAP */
+        transform: translateY(20px);
+        transition: background-color 0.4s ease;
+    }
+
+    .zen-course-item:hover {
+        background-color: rgba(0,0,0,0.01);
+    }
+    
+    .zen-course-code {
+        font-family: var(--font-serif);
+        font-size: 1.8rem;
+        color: var(--text-sumi);
+        min-width: 150px;
+    }
+    
+    .zen-course-details {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .zen-course-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+        color: var(--text-sumi);
+    }
+
+    .zen-course-desc {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-bottom: 20px;
+        line-height: 1.8;
+    }
+
+    .zen-course-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        gap: 20px;
+    }
+    
+    .zen-course-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        min-width: 150px;
+        align-items: flex-start;
+    }
+
+    .zen-action-link {
+        font-size: 0.9rem;
+        color: var(--text-sumi);
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        position: relative;
+        padding-bottom: 4px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-sans);
+    }
+
+    .zen-action-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 0%;
+        height: 1px;
+        background-color: var(--accent-shu);
+        transition: width 0.4s ease;
+    }
+
+    .zen-action-link:hover::after {
+        width: 100%;
+    }
+
+    .zen-action-link.danger {
+        color: var(--accent-shu);
+    }
+
+    /* Modal overrides for Zen */
+    .modal-content.zen-modal {
+        background: var(--bg-washi);
+        border: 1px solid var(--border-light);
+        border-radius: 0;
+        padding: 20px;
+    }
+    .modal-header.zen-modal-header {
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 20px;
+    }
+    .modal-footer.zen-modal-footer {
+        border-top: none;
+        padding-top: 20px;
+    }
+</style>
+
+<div class="gsap-fade-up">
+    <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold" style="color: var(--text-main);">
-                <i class="fa-solid fa-layer-group me-2" style="color: var(--primary);"></i>Danh sách Môn học
-            </h2>
-            <p class="text-muted">Chọn môn học để xem tài liệu tương ứng.</p>
+            <div class="text-accent mb-2" style="font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase;">
+                Lưu trữ
+            </div>
+            <h1 class="font-serif m-0" style="font-size: 3rem;">Kho Học Liệu</h1>
         </div>
         @if (isLecturerOrAdmin)
         {
-            <a asp-action="Create" class="btn btn-primary" style="background-color: var(--primary); border: none;">
-                <i class="fa-solid fa-plus me-1"></i> Tạo Môn Học Mới
+            <a asp-action="Create" class="btn-zen" style="text-decoration: none; display: inline-block;">
+                Tạo Môn Mới
             </a>
         }
     </div>
 
     <!-- Search Box -->
-    <div class="card mb-4 border-0 shadow-sm" style="border-radius: 12px;">
-        <div class="card-body">
-            <form method="get" class="d-flex gap-2">
-                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo mã môn (vd: CS101) hoặc tên môn..." value="@ViewData["SearchKeyword"]" style="border-radius: 8px;" />
-                <button type="submit" class="btn btn-primary" style="border-radius: 8px; background-color: var(--primary); border: none;"><i class="fa-solid fa-magnifying-glass"></i></button>
-                @if (!string.IsNullOrEmpty(ViewData["SearchKeyword"]?.ToString()))
-                {
-                    <a asp-action="Index" class="btn btn-outline-secondary" style="border-radius: 8px;">Xóa bộ lọc</a>
-                }
-            </form>
-        </div>
+    <div class="mb-5">
+        <form method="get" class="d-flex align-items-end gap-3">
+            <div style="flex: 1; max-width: 600px;">
+                <input type="text" name="search" class="input-zen" placeholder="Tìm kiếm theo mã môn hoặc tên môn..." value="@ViewData["SearchKeyword"]" />
+            </div>
+            <button type="submit" class="zen-action-link">Tìm kiếm</button>
+            @if (!string.IsNullOrEmpty(ViewData["SearchKeyword"]?.ToString()))
+            {
+                <a asp-action="Index" class="zen-action-link">Hủy</a>
+            }
+        </form>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
-            <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="mb-4" style="color: #059669; padding: 15px 0; border-bottom: 1px solid #059669;">
+            @TempData["SuccessMessage"]
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
-            <i class="fa-solid fa-circle-exclamation me-2"></i> @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="mb-4" style="color: var(--accent-shu); padding: 15px 0; border-bottom: 1px solid var(--accent-shu);">
+            @TempData["ErrorMessage"]
         </div>
     }
 
-    <div class="row g-4">
-        @if (!Model.Any())
-        {
-            <div class="col-12 text-center py-5">
-                <i class="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
-                <h5 class="text-dark">Không tìm thấy môn học nào.</h5>
-            </div>
-        }
-        else
-        {
-            foreach (var course in Model)
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 mt-5">
+            <span class="hanko-seal" style="margin-bottom: 20px;">無</span>
+            <h5 class="font-serif text-muted">Trống rỗng.</h5>
+        </div>
+    }
+    else
+    {
+        <div class="zen-course-list">
+            @foreach (var course in Model)
             {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.2s; border-radius: 16px; border: 1px solid var(--sidebar-border) !important;">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h4 class="fw-bold mb-0" style="color: var(--primary);">@course.Code</h4>
-                                <span class="badge text-secondary" style="background: rgba(0,0,0,0.05);">@course.CreatedAt.ToString("dd/MM/yyyy")</span>
-                            </div>
-                            <h6 class="card-title fw-bold text-dark fs-5 mb-2">@course.Name</h6>
-                            <p class="card-text text-muted flex-grow-1" style="font-size: 0.95rem;">
-                                @(string.IsNullOrEmpty(course.Description) ? "Không có mô tả chi tiết." : course.Description)
-                            </p>
-                            
-                            <div class="mt-2 mb-3">
-                                <span class="d-block text-muted" style="font-size: 0.85rem;">
-                                    <i class="fa-solid fa-user-tie text-indigo me-1"></i> Trưởng bộ môn: <strong class="text-dark">@course.SubjectLeaderName</strong>
-                                </span>
-                            </div>
-
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <div class="d-flex gap-2 mb-2">
-                                    <button type="button" class="btn btn-sm btn-outline-primary flex-grow-1 btn-edit-course" data-bs-toggle="modal" data-bs-target="#editCourseModal" data-id="@course.Id" data-code="@course.Code" data-name="@course.Name" data-description="@course.Description" data-leader-id="@course.SubjectLeaderId" style="border-radius: 8px; font-size: 0.8rem; font-weight: 500;">
-                                        <i class="fa-solid fa-pen-to-square me-1"></i> Sửa
-                                    </button>
-                                    <form asp-action="Delete" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa môn học @course.Code? Hành động này sẽ XÓA VĨNH VIỄN môn học này cùng toàn bộ tài liệu giảng dạy liên quan!');" class="flex-grow-1">
-                                        <input type="hidden" name="id" value="@course.Id" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100" style="border-radius: 8px; font-size: 0.8rem; font-weight: 500;">
-                                            <i class="fa-solid fa-trash-can me-1"></i> Xóa
-                                        </button>
-                                    </form>
-                                </div>
-                            }
-
-                            <div class="mt-1">
-                                <a asp-controller="Document" asp-action="Index" asp-route-courseCode="@course.Code" class="btn btn-outline-primary w-100" style="border-radius: 8px; font-weight: 500;">
-                                    <i class="fa-regular fa-folder-open me-2"></i>Vào kho tài liệu
-                                </a>
-                            </div>
+                <div class="zen-course-item">
+                    <div class="zen-course-code">@course.Code</div>
+                    
+                    <div class="zen-course-details">
+                        <div class="zen-course-title">@course.Name</div>
+                        <div class="zen-course-desc">
+                            @(string.IsNullOrEmpty(course.Description) ? "Không có mô tả chi tiết." : course.Description)
                         </div>
+                        <div class="zen-course-meta">
+                            <span>Giảng viên: @course.SubjectLeaderName</span>
+                            <span>Cập nhật: @course.CreatedAt.ToString("dd/MM/yyyy")</span>
+                        </div>
+                    </div>
+
+                    <div class="zen-course-actions">
+                        <a asp-controller="Document" asp-action="Index" asp-route-courseCode="@course.Code" class="zen-action-link">
+                            Truy cập tài liệu &rarr;
+                        </a>
+                        
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <button type="button" class="zen-action-link btn-edit-course" data-bs-toggle="modal" data-bs-target="#editCourseModal" data-id="@course.Id" data-code="@course.Code" data-name="@course.Name" data-description="@course.Description" data-leader-id="@course.SubjectLeaderId">
+                                Chỉnh sửa
+                            </button>
+                            <form asp-action="Delete" method="post" onsubmit="return confirm('Xác nhận xóa môn @course.Code?');">
+                                <input type="hidden" name="id" value="@course.Id" />
+                                <button type="submit" class="zen-action-link danger">
+                                    Xóa bỏ
+                                </button>
+                            </form>
+                        }
                     </div>
                 </div>
             }
-        }
-    </div>
+        </div>
+    }
 </div>
 
-<!-- Modal Chỉnh sửa Môn học (chỉ dành cho Admin) -->
 @if (User.IsInRole("Admin"))
 {
-    <div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4" style="background: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
-                <div class="modal-header border-bottom-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-dark" id="editCourseModalLabel">
-                        <i class="fa-solid fa-pen-to-square text-indigo me-2"></i>Chỉnh Sửa Môn Học
-                    </h5>
+    <div class="modal fade" id="editCourseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content zen-modal">
+                <div class="modal-header zen-modal-header">
+                    <h5 class="modal-title font-serif">Chỉnh Sửa Môn Học</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
                 <form asp-action="Edit" method="post">
-                    <div class="modal-body px-4 py-3">
+                    <div class="modal-body py-4">
                         <input type="hidden" id="editModalCourseId" name="Id" />
                         
-                        <div class="mb-3">
-                            <label for="editModalCourseCode" class="form-label fw-semibold">Mã môn học <span class="text-danger">*</span></label>
-                            <input type="text" id="editModalCourseCode" name="Code" class="form-control" style="border-radius: 8px; padding: 10px 15px;" required />
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <label class="text-muted mb-2" style="font-size: 0.85rem; text-transform: uppercase;">Mã môn</label>
+                                <input type="text" id="editModalCourseCode" name="Code" class="input-zen" required />
+                            </div>
+                            <div class="col-md-8">
+                                <label class="text-muted mb-2" style="font-size: 0.85rem; text-transform: uppercase;">Tên môn</label>
+                                <input type="text" id="editModalCourseName" name="Name" class="input-zen" required />
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="editModalCourseName" class="form-label fw-semibold">Tên môn học <span class="text-danger">*</span></label>
-                            <input type="text" id="editModalCourseName" name="Name" class="form-control" style="border-radius: 8px; padding: 10px 15px;" required />
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editModalLeaderSelect" class="form-label fw-semibold">Trưởng bộ môn (Subject Leader) <span class="text-danger">*</span></label>
-                            <select id="editModalLeaderSelect" name="SubjectLeaderId" class="form-select" style="border-radius: 8px; padding: 10px 15px;" required>
-                                <option value="">-- Chọn Trưởng bộ môn --</option>
+                        <div class="mb-4">
+                            <label class="text-muted mb-2" style="font-size: 0.85rem; text-transform: uppercase;">Trưởng bộ môn</label>
+                            <select id="editModalLeaderSelect" name="SubjectLeaderId" class="form-select" required>
+                                <option value="">-- Lựa chọn --</option>
                                 @if (ViewBag.Lecturers != null)
                                 {
                                     foreach (var lecturer in (IEnumerable<RAGChatBot.Application.DTOs.UserDto>)ViewBag.Lecturers)
                                     {
-                                        <option value="@lecturer.Id">@(string.IsNullOrEmpty(lecturer.FullName) ? lecturer.Username : lecturer.FullName) (@(lecturer.Role == "Admin" ? "Admin" : "Giảng viên"))</option>
+                                        <option value="@lecturer.Id">@(string.IsNullOrEmpty(lecturer.FullName) ? lecturer.Username : lecturer.FullName)</option>
                                     }
                                 }
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="editModalCourseDesc" class="form-label fw-semibold">Mô tả môn học</label>
-                            <textarea id="editModalCourseDesc" name="Description" class="form-control" rows="3" style="border-radius: 8px; padding: 10px 15px;"></textarea>
+                        <div class="mb-2">
+                            <label class="text-muted mb-2" style="font-size: 0.85rem; text-transform: uppercase;">Mô tả</label>
+                            <textarea id="editModalCourseDesc" name="Description" class="form-control" rows="3" style="border: none; border-bottom: 1px solid var(--border-light);"></textarea>
                         </div>
                     </div>
                     
-                    <div class="modal-footer border-top-0 pb-4 px-4 gap-2">
-                        <button type="button" class="btn btn-outline-secondary py-2 px-3 rounded-3" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-primary py-2 px-4 shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); border: none; border-radius: 8px; font-weight: 600; color: white;">
-                            <i class="fa-solid fa-circle-check me-1"></i> Lưu Thay Đổi
-                        </button>
+                    <div class="modal-footer zen-modal-footer">
+                        <button type="button" class="zen-action-link" data-bs-dismiss="modal" style="margin-right: 20px;">Hủy bỏ</button>
+                        <button type="submit" class="btn-zen">Lưu thay đổi</button>
                     </div>
                 </form>
             </div>
@@ -168,31 +268,37 @@
 }
 
 @section Scripts {
-    @if (User.IsInRole("Admin"))
-    {
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                var editCourseIdInput = document.getElementById('editModalCourseId');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initial Page fade
+            gsap.to(".gsap-fade-up", { y: 0, opacity: 1, duration: 1.2, ease: "power3.out" });
+
+            // Staggered list reveal
+            gsap.to(".zen-course-item", {
+                y: 0,
+                opacity: 1,
+                duration: 1.2,
+                stagger: 0.15,
+                ease: "power2.out",
+                delay: 0.3
+            });
+
+            // Admin Edit Modal logic
+            var editCourseIdInput = document.getElementById('editModalCourseId');
+            if (editCourseIdInput) {
                 var editCourseCodeInput = document.getElementById('editModalCourseCode');
                 var editCourseNameInput = document.getElementById('editModalCourseName');
                 var editCourseLeaderSelect = document.getElementById('editModalLeaderSelect');
                 var editCourseDescInput = document.getElementById('editModalCourseDesc');
 
-                // Bắt sự kiện click vào nút Chỉnh sửa môn học
                 document.querySelectorAll('.btn-edit-course').forEach(function (button) {
                     button.addEventListener('click', function () {
-                        var id = this.getAttribute('data-id');
-                        var code = this.getAttribute('data-code');
-                        var name = this.getAttribute('data-name');
-                        var description = this.getAttribute('data-description');
-                        var leaderId = this.getAttribute('data-leader-id');
-
-                        editCourseIdInput.value = id;
-                        editCourseCodeInput.value = code;
-                        editCourseNameInput.value = name;
-                        editCourseDescInput.value = description || "";
+                        editCourseIdInput.value = this.getAttribute('data-id');
+                        editCourseCodeInput.value = this.getAttribute('data-code');
+                        editCourseNameInput.value = this.getAttribute('data-name');
+                        editCourseDescInput.value = this.getAttribute('data-description') || "";
                         
-                        // Thiết lập value cho select dropdown
+                        var leaderId = this.getAttribute('data-leader-id');
                         if (leaderId) {
                             editCourseLeaderSelect.value = leaderId;
                         } else {
@@ -200,7 +306,7 @@
                         }
                     });
                 });
-            });
-        </script>
-    }
+            }
+        });
+    </script>
 }
