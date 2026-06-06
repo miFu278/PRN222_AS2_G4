@@ -144,60 +144,111 @@ namespace RAGChatBot.Infrastructure.Email
         {
             return $@"
 <!DOCTYPE html>
-<html>
+<html lang=""vi"">
 <head>
     <meta charset=""utf-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Tài khoản RAG ChatBot của bạn</title>
-    <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 0; }}
-        .container {{ max-width: 600px; margin: 30px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }}
-        .header {{ background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); padding: 40px 20px; text-align: center; color: #fff; }}
-        .header h1 {{ margin: 0; font-size: 26px; font-weight: 700; }}
-        .header p {{ margin: 8px 0 0; opacity: 0.85; font-size: 14px; }}
-        .content {{ padding: 36px 32px; line-height: 1.7; }}
-        .credential-box {{ background: #f8f9ff; border: 1.5px solid #c7d2fe; border-radius: 10px; padding: 20px 24px; margin: 24px 0; }}
-        .credential-row {{ display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e0e7ff; }}
-        .credential-row:last-child {{ border-bottom: none; }}
-        .credential-label {{ font-size: 13px; color: #6366f1; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }}
-        .credential-value {{ font-size: 15px; font-weight: 700; color: #1e1b4b; font-family: 'Courier New', monospace; background: #e0e7ff; padding: 4px 10px; border-radius: 6px; }}
-        .btn {{ display: inline-block; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff !important; text-decoration: none; padding: 13px 32px; border-radius: 8px; font-weight: 700; margin-top: 8px; }}
-        .warning {{ background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 6px; font-size: 14px; color: #92400e; margin-top: 20px; }}
-        .footer {{ background: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #f3f4f6; }}
-    </style>
 </head>
-<body>
-    <div class=""container"">
-        <div class=""header"">
-            <h1>RAG ChatBot</h1>
-            <p>Thông tin tài khoản của bạn</p>
-        </div>
-        <div class=""content"">
-            <p>Xin chào <strong>{fullName}</strong>,</p>
-            <p>Tài khoản hệ thống <strong>RAG ChatBot</strong> của bạn đã được Quản trị viên tạo thành công với vai trò <strong>{roleDisplay}</strong>. Dưới đây là thông tin đăng nhập:</p>
-            <div class=""credential-box"">
-                <div class=""credential-row"">
-                    <span class=""credential-label"">Tên đăng nhập</span>
-                    <span class=""credential-value"">{username}</span>
-                </div>
-                <div class=""credential-row"">
-                    <span class=""credential-label"">Mật khẩu</span>
-                    <span class=""credential-value"">{password}</span>
-                </div>
-                <div class=""credential-row"">
-                    <span class=""credential-label"">Vai trò</span>
-                    <span class=""credential-value"">{roleDisplay}</span>
-                </div>
-            </div>
-            <div style=""text-align: center; margin: 28px 0;"">
-                <a href=""{_loginUrl}"" class=""btn"" style=""color: #ffffff !important;"">Đăng Nhập Ngay</a>
-            </div>
-            <div class=""warning"">
-                <strong>⚠️ Bảo mật:</strong> Vui lòng đổi mật khẩu ngay sau lần đăng nhập đầu tiên để bảo vệ tài khoản của bạn.
-            </div>
-            <p style=""margin-top: 24px;"">Trân trọng,<br>Đội ngũ RAG ChatBot</p>
-        </div>
-        <div class=""footer"">Đây là email tự động. Vui lòng không phản hồi email này.</div>
-    </div>
+<body style=""margin:0; padding:0; background-color:#f5f0eb; font-family: Georgia, 'Times New Roman', serif;"">
+
+    <table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"" style=""background-color:#f5f0eb;"">
+        <tr>
+            <td align=""center"" style=""padding: 40px 16px;"">
+
+                <!-- Container -->
+                <table width=""560"" cellpadding=""0"" cellspacing=""0"" border=""0"" style=""max-width:560px; width:100%; background-color:#faf7f2; border-radius:4px; overflow:hidden;"">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style=""padding: 48px 40px 40px; text-align:center; border-bottom: 1px solid #d9cfc4;"">
+                            <div style=""display:inline-block; width:48px; height:2px; background:#8b7355; margin-bottom:20px;""></div>
+                            <h1 style=""margin:0 0 6px; font-size:22px; font-weight:400; color:#3d3530; letter-spacing:3px; text-transform:uppercase;"">RAG ChatBot</h1>
+                            <p style=""margin:0; font-size:12px; color:#9c8e80; letter-spacing:2px; text-transform:uppercase;"">Thông tin tài khoản</p>
+                            <div style=""display:inline-block; width:48px; height:2px; background:#8b7355; margin-top:20px;""></div>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style=""padding: 40px 40px 32px;"">
+                            <p style=""margin:0 0 10px; font-size:15px; color:#5c4f45; line-height:1.8;"">Xin chào <strong style=""color:#3d3530; font-weight:600;"">{fullName}</strong>,</p>
+                            <p style=""margin:0 0 32px; font-size:14px; color:#7a6e65; line-height:1.9;"">Tài khoản hệ thống <strong style=""color:#5c4f45;"">RAG ChatBot</strong> của bạn đã được Quản trị viên tạo thành công với vai trò <strong style=""color:#5c4f45;"">{roleDisplay}</strong>. Dưới đây là thông tin đăng nhập:</p>
+
+                            <!-- Credential Table -->
+                            <table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"" style=""background-color:#f0ebe4; border-radius:3px; border: 1px solid #d9cfc4;"">
+                                <tr>
+                                    <td style=""padding: 14px 20px; border-bottom: 1px solid #d9cfc4;"">
+                                        <table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"">
+                                            <tr>
+                                                <td width=""40%"" style=""font-size:11px; color:#8b7355; letter-spacing:1.5px; text-transform:uppercase; font-family: Georgia, serif; vertical-align:middle;"">TÊN ĐĂNG NHẬP</td>
+                                                <td width=""60%"" style=""text-align:right; vertical-align:middle;"">
+                                                    <span style=""display:inline-block; font-size:13px; font-weight:600; color:#3d3530; font-family:'Courier New', Courier, monospace; background:#e5ddd3; padding:4px 12px; border-radius:2px; word-break:break-all;"">{username}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style=""padding: 14px 20px; border-bottom: 1px solid #d9cfc4;"">
+                                        <table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"">
+                                            <tr>
+                                                <td width=""40%"" style=""font-size:11px; color:#8b7355; letter-spacing:1.5px; text-transform:uppercase; font-family: Georgia, serif; vertical-align:middle;"">MẬT KHẨU</td>
+                                                <td width=""60%"" style=""text-align:right; vertical-align:middle;"">
+                                                    <span style=""display:inline-block; font-size:13px; font-weight:600; color:#3d3530; font-family:'Courier New', Courier, monospace; background:#e5ddd3; padding:4px 12px; border-radius:2px;"">{password}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style=""padding: 14px 20px;"">
+                                        <table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"">
+                                            <tr>
+                                                <td width=""40%"" style=""font-size:11px; color:#8b7355; letter-spacing:1.5px; text-transform:uppercase; font-family: Georgia, serif; vertical-align:middle;"">VAI TRÒ</td>
+                                                <td width=""60%"" style=""text-align:right; vertical-align:middle;"">
+                                                    <span style=""display:inline-block; font-size:13px; font-weight:600; color:#3d3530; font-family:'Courier New', Courier, monospace; background:#e5ddd3; padding:4px 12px; border-radius:2px;"">{roleDisplay}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA Button -->
+                            <table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"" style=""margin-top:32px;"">
+                                <tr>
+                                    <td align=""center"">
+                                        <a href=""{_loginUrl}"" style=""display:inline-block; background-color:#5c4f45; color:#faf7f2 !important; text-decoration:none; font-size:12px; letter-spacing:2px; text-transform:uppercase; padding:14px 36px; border-radius:2px;"">Đăng Nhập Ngay</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Warning -->
+                            <table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"" style=""margin-top:28px; border-left: 3px solid #a0845c;"">
+                                <tr>
+                                    <td style=""padding: 12px 16px; background-color:#f5ede2;"">
+                                        <p style=""margin:0; font-size:13px; color:#7a5c3a; line-height:1.7;""><strong>⚠ Lưu ý bảo mật:</strong> Vui lòng đổi mật khẩu ngay sau lần đăng nhập đầu tiên để bảo vệ tài khoản của bạn.</p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style=""margin-top:36px; margin-bottom:0; font-size:14px; color:#7a6e65; line-height:1.9;"">Trân trọng,<br><span style=""color:#5c4f45; font-weight:600;"">Đội ngũ RAG ChatBot</span></p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style=""padding: 20px 40px; text-align:center; border-top: 1px solid #d9cfc4;"">
+                            <p style=""margin:0; font-size:11px; color:#b0a395; letter-spacing:0.5px;"">Đây là email tự động. Vui lòng không phản hồi email này.</p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
 </body>
 </html>";
         }
