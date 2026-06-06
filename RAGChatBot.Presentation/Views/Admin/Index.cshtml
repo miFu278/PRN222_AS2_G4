@@ -12,7 +12,10 @@
                 </h2>
                 <p class="text-muted mb-0">Quản trị viên có thể tạo mới, nâng cấp gói cước và xóa tài khoản của giảng viên/sinh viên.</p>
             </div>
-            <div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success-custom py-2 px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#importUsersModal">
+                    <i class="fa-solid fa-file-excel me-1"></i> Import Excel
+                </button>
                 <button type="button" class="btn btn-primary-custom py-2 px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#createAccountModal">
                     <i class="fa-solid fa-user-plus me-1"></i> Tạo tài khoản mới
                 </button>
@@ -209,4 +212,113 @@
         box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
         color: white;
     }
+
+    .btn-success-custom {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+    .btn-success-custom:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+        color: white;
+    }
 </style>
+
+<!-- Modal Import Excel tài khoản -->
+<div class="modal fade" id="importUsersModal" tabindex="-1" aria-labelledby="importUsersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4" style="background: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header border-bottom-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-dark" id="importUsersModalLabel">
+                    <i class="fa-solid fa-file-excel text-success me-2"></i>Import Tài Khoản Từ File Excel
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form asp-action="ImportUsers" method="post" enctype="multipart/form-data">
+                <div class="modal-body px-4 py-3">
+                    <!-- Hướng dẫn định dạng -->
+                    <div class="alert alert-info border-0 rounded-3 mb-4" style="background: rgba(6,182,212,0.08); border-left: 4px solid #06b6d4 !important; border: none;">
+                        <p class="fw-semibold mb-2"><i class="fa-solid fa-circle-info me-1"></i> Định dạng file Excel mẫu:</p>
+                        <ul class="mb-2 ps-3" style="font-size:0.9rem;">
+                            <li>File Excel <strong>.xlsx</strong> hoặc <strong>.xls</strong></li>
+                            <li>Bắt buộc có cột <strong>"Email"</strong> (dùng làm tên đăng nhập)</li>
+                            <li>Tùy chọn: cột <strong>"Họ và Tên"</strong>, <strong>"Vai Trò"</strong> (Student/Lecturer), <strong>"Gói"</strong> (Free/Premium)</li>
+                            <li>Giá trị cột Vai Trò: <code>Student</code> / <code>Sinh viên</code> / <code>SV</code> hoặc <code>Lecturer</code> / <code>Giảng viên</code> / <code>GV</code></li>
+                        </ul>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0" style="font-size:0.85rem; background:white;">
+                                <thead class="table-light">
+                                    <tr><th>Họ và Tên</th><th>Email</th><th>Vai Trò</th><th>Gói</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Nguyễn Văn A</td><td>vanA@@gmail.com</td><td>Student</td><td>Free</td></tr>
+                                    <tr><td>Trần Thị B</td><td>thib@@gmail.com</td><td>Lecturer</td><td>Premium</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mật khẩu mặc định -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mật khẩu mặc định <span class="text-muted fw-normal">(áp dụng cho tất cả tài khoản trong file)</span></label>
+                        <input type="text" class="form-control form-control-custom" name="defaultPassword" value="Welcome@2026" placeholder="Mật khẩu mặc định..." />
+                        <div class="form-text"><i class="fa-solid fa-lock me-1"></i>Mật khẩu này sẽ được gửi kèm trong email thông báo đến từng người dùng.</div>
+                    </div>
+
+                    <!-- Chọn file -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Chọn file Excel</label>
+                        <div id="importDropZone" class="border-2 border-dashed rounded-3 p-4 text-center"
+                             style="border-color: #22c55e; background: rgba(34,197,94,0.04); cursor:pointer; transition: all 0.2s;"
+                             onclick="document.getElementById('importFileInput').click()">
+                            <i class="fa-solid fa-cloud-arrow-up fa-2x text-success mb-2 d-block"></i>
+                            <p class="mb-1 fw-semibold" id="importFileLabel">Nhấp để chọn file hoặc kéo thả vào đây</p>
+                            <small class="text-muted">Chấp nhận file .xlsx hoặc .xls</small>
+                        </div>
+                        <input type="file" id="importFileInput" name="file" accept=".xlsx,.xls" class="d-none" required />
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top-0 pb-4 px-4 gap-2">
+                    <button type="button" class="btn btn-outline-secondary py-2 px-3 rounded-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success-custom py-2 px-4 shadow-sm">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Bắt đầu Import & Gửi Mail
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hiển thị tên file đã chọn
+    document.getElementById('importFileInput').addEventListener('change', function () {
+        const label = document.getElementById('importFileLabel');
+        const zone = document.getElementById('importDropZone');
+        if (this.files.length > 0) {
+            label.textContent = this.files[0].name;
+            zone.style.borderColor = '#16a34a';
+            zone.style.background = 'rgba(34,197,94,0.1)';
+        }
+    });
+
+    // Drag & drop
+    const dropZone = document.getElementById('importDropZone');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.background = 'rgba(34,197,94,0.12)'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.background = 'rgba(34,197,94,0.04)'; });
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            document.getElementById('importFileInput').files = e.dataTransfer.files;
+            document.getElementById('importFileLabel').textContent = file.name;
+            dropZone.style.borderColor = '#16a34a';
+            dropZone.style.background = 'rgba(34,197,94,0.1)';
+        }
+    });
+</script>

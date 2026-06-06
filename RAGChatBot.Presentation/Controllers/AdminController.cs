@@ -112,6 +112,40 @@ namespace RAGChatBot.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ImportUsers(Microsoft.AspNetCore.Http.IFormFile file, string defaultPassword)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn một file Excel (.xlsx hoặc .xls)!";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var ext = System.IO.Path.GetExtension(file.FileName).ToLower();
+            if (ext != ".xlsx" && ext != ".xls")
+            {
+                TempData["ErrorMessage"] = "Định dạng file không hợp lệ! Chỉ chấp nhận .xlsx hoặc .xls.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (string.IsNullOrWhiteSpace(defaultPassword))
+                defaultPassword = "Welcome@2026";
+
+            try
+            {
+                using var stream = file.OpenReadStream();
+                var (success, skipped) = await _authService.ImportUsersFromExcelAsync(stream, defaultPassword.Trim());
+                TempData["SuccessMessage"] = $"Import thành công {success} tài khoản mới! (Bỏ qua {skipped} tài khoản đã tồn tại). Email đã được gửi đến từng người.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi import file Excel tài khoản người dùng");
+                TempData["ErrorMessage"] = "Lỗi khi import: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         [HttpGet]
         public async Task<IActionResult> Whitelist()
         {
