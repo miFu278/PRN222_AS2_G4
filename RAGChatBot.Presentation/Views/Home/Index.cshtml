@@ -1,173 +1,189 @@
 @{
-    ViewData["Title"] = "Trò chuyện";
+    ViewData["Title"] = "Trợ Lý";
 }
 
 <style>
-    .chat-container {
+    .zen-chat-container {
         display: flex;
         flex-direction: column;
-        height: 100%;
-        position: relative;
-        background: #ffffff;
-    }
-
-    .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        min-height: calc(100vh - 150px);
         justify-content: center;
-    }
-
-    .empty-state {
-        text-align: center;
-        max-width: 650px;
-    }
-
-    .empty-state h1 {
-        font-size: 2.2rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: var(--text-main);
-    }
-
-    .empty-state p {
-        color: var(--text-sub);
-        font-size: 1.1rem;
-        margin-bottom: 40px;
-        line-height: 1.6;
-    }
-
-    .chat-input-container {
-        padding: 20px;
-        width: 100%;
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
-        background: white;
+        padding-top: 50px;
     }
 
-    .chat-input-wrapper {
-        position: relative;
-        border: 1px solid var(--sidebar-border);
-        border-radius: 24px;
-        background: #f8f9fa;
-        padding: 8px 15px;
+    .zen-hero {
         display: flex;
-        align-items: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-    }
-
-    .chat-input-wrapper:focus-within {
-        border-color: var(--primary);
-        background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
-    }
-
-    .chat-input {
-        flex: 1;
-        border: none;
-        background: transparent;
-        padding: 10px;
-        font-size: 1rem;
-        color: var(--text-main);
-        outline: none;
-    }
-
-    .chat-input::placeholder {
-        color: #adb5bd;
-    }
-
-    .send-btn {
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: not-allowed;
-        opacity: 0.7;
-        transition: background-color 0.2s;
-    }
-
-    .suggestions {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        margin-top: 20px;
         flex-wrap: wrap;
+        align-items: flex-start;
+        margin-bottom: 80px;
+        gap: 40px;
     }
 
-    .suggestion-chip {
-        background: white;
-        border: 1px solid var(--sidebar-border);
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        color: var(--text-sub);
-        cursor: not-allowed;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    .zen-hero-title {
+        flex: 1;
+        min-width: 300px;
+        font-size: 4.5rem;
+        font-weight: 300;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        position: relative;
     }
 
-    .suggestion-chip i {
-        color: var(--primary);
-        font-size: 1.1rem;
-    }
-
-    .coming-soon-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-        color: white;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
+    .zen-hero-title span {
+        display: block;
     }
     
-    .chat-footer {
-        text-align: center;
-        margin-top: 10px;
-        color: #94a3b8;
-        font-size: 0.85rem;
+    .zen-hero-title .text-accent {
+        font-size: 1rem;
+        font-family: var(--font-sans);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    .zen-hero-desc {
+        flex: 1;
+        min-width: 300px;
+        padding-top: 20px;
+        font-size: 1.1rem;
+        color: var(--text-muted) !important;
+        position: relative;
+    }
+
+    .zen-hero-desc::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 40px;
+        height: 1px;
+        background-color: var(--text-sumi);
+    }
+
+    .zen-input-area {
+        position: relative;
+        margin-bottom: 60px;
+    }
+
+    .zen-input-wrapper {
+        display: flex;
+        align-items: flex-end;
+        gap: 20px;
+    }
+
+    .zen-send-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-sumi);
+        font-size: 1.2rem;
+        cursor: not-allowed;
+        padding-bottom: 12px;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+    }
+    .zen-send-btn:hover { opacity: 1; }
+
+    .zen-suggestions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .zen-suggestion-item {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: color 0.4s ease;
+        cursor: not-allowed;
+    }
+
+    .zen-suggestion-item::before {
+        content: '';
+        display: inline-block;
+        width: 15px;
+        height: 1px;
+        background-color: var(--border-light);
+        margin-right: 15px;
+        transition: width 0.4s ease, background-color 0.4s ease;
+    }
+
+    .zen-suggestion-item:hover {
+        color: var(--text-sumi);
+    }
+    .zen-suggestion-item:hover::before {
+        width: 30px;
+        background-color: var(--accent-shu);
+    }
+
+    .gsap-reveal-text {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    }
+    .gsap-reveal-inner {
+        transform: translateY(100%);
+        display: inline-block;
     }
 </style>
 
-<div class="chat-container">
-    <div class="chat-messages">
-        <div class="empty-state">
-            <span class="coming-soon-badge"><i class="fa-solid fa-sparkles me-1"></i> Tính năng sắp ra mắt</span>
-            <h1>RAG ChatBot Assistant</h1>
-            <p>Hệ thống AI Assistant được tích hợp công nghệ RAG giúp trả lời các câu hỏi dựa trên nội dung tài liệu môn học. Chúng tôi đang hoàn thiện những bước cuối cùng.</p>
-            
-            <div class="suggestions">
-                <div class="suggestion-chip"><i class="fa-solid fa-book-open me-2"></i> Tóm tắt nội dung bài giảng Chương 1</div>
-                <div class="suggestion-chip"><i class="fa-solid fa-spell-check me-2"></i> Giải thích khái niệm đa hình trong OOP</div>
-                <div class="suggestion-chip"><i class="fa-solid fa-list-check me-2"></i> Tạo đề cương ôn tập môn học</div>
-            </div>
+<div class="zen-chat-container">
+    <div class="zen-hero">
+        <div class="zen-hero-title">
+            <div class="text-accent gsap-fade-up">Giai đoạn thử nghiệm</div>
+            <h1 class="font-serif m-0">
+                <span class="gsap-reveal-text"><span class="gsap-reveal-inner">Trợ lý</span></span>
+                <span class="gsap-reveal-text"><span class="gsap-reveal-inner">Học thuật</span></span>
+            </h1>
+        </div>
+        <div class="zen-hero-desc gsap-fade-up" style="animation-delay: 0.2s;">
+            <p>
+                RAG ChatBot sử dụng dữ liệu từ kho học liệu để hỗ trợ bạn tóm tắt, giải thích khái niệm và tạo đề cương ôn tập. 
+                Sự tĩnh lặng tạo nên sức mạnh của trí tuệ.
+            </p>
         </div>
     </div>
 
-    <div class="chat-input-container">
-        <div class="chat-input-wrapper">
-            <input type="text" class="chat-input" placeholder="Hỏi bất cứ điều gì về tài liệu môn học..." disabled title="Tính năng Chat đang được bảo trì">
-            <button class="send-btn" disabled>
-                <i class="fa-solid fa-paper-plane"></i>
-            </button>
+    <div class="zen-input-area gsap-fade-up" style="animation-delay: 0.4s;">
+        <div class="zen-input-wrapper">
+            <input type="text" class="input-zen" placeholder="Viết câu hỏi của bạn tại đây..." disabled>
+            <button class="zen-send-btn" disabled><i class="fa-solid fa-arrow-right"></i></button>
         </div>
-        <div class="chat-footer">
-            RAG ChatBot có thể đưa ra thông tin chưa chính xác. Vui lòng đối chiếu với tài liệu gốc.
+        <div class="mt-3 text-muted" style="font-size: 0.8rem; font-weight: 300;">
+            Tính năng Chat đang được bảo trì để đạt sự hoàn hảo.
         </div>
     </div>
+
+    <div class="zen-suggestions gsap-fade-up" style="animation-delay: 0.6s;">
+        <span class="text-muted mb-2" style="font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">Gợi ý câu hỏi</span>
+        <a href="#" class="zen-suggestion-item">Tóm tắt nội dung bài giảng Chương 1</a>
+        <a href="#" class="zen-suggestion-item">Giải thích khái niệm đa hình trong OOP</a>
+        <a href="#" class="zen-suggestion-item">Tạo đề cương ôn tập môn học</a>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elegant slow reveals
+            gsap.to(".gsap-reveal-inner", {
+                y: "0%",
+                duration: 1.5,
+                stagger: 0.2,
+                ease: "power4.out",
+                delay: 0.2
+            });
+
+            gsap.to(".gsap-fade-up", {
+                y: 0,
+                opacity: 1,
+                duration: 1.5,
+                stagger: 0.2,
+                ease: "power3.out",
+                delay: 0.5
+            });
+        });
+    </script>
+}

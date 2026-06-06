@@ -1,277 +1,259 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@300;400;500;700&display=swap');
+
+:root {
+    --bg-washi: #fcfbf9;
+    --text-sumi: #2c2c2c;
+    --text-muted: #8e8e8e;
+    --accent-shu: #bf2a23;
+    --border-light: #eaeaea;
+    --font-serif: 'Noto Serif JP', serif;
+    --font-sans: 'Noto Sans JP', sans-serif;
+}
+
 html {
-  font-size: 16px;
+    font-size: 16px;
+    background-color: var(--bg-washi);
 }
 
 body {
-  margin-bottom: 0px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%) !important;
-  color: #0f172a !important;
+    margin: 0;
+    background-color: var(--bg-washi) !important;
+    color: var(--text-sumi) !important;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
-/* Global Typography Overrides for Light Theme (High Contrast) */
-h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .fw-bold {
-    color: #0f172a !important;
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .font-serif {
+    font-family: var(--font-serif);
+    color: var(--text-sumi) !important;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
 }
 
 p, .lead, li {
-    color: #334155 !important;
+    color: var(--text-sumi) !important;
+    line-height: 1.8;
+    font-weight: 300;
 }
 
-/* Adjust bootstrap text-muted class for high contrast on light background */
 .text-muted {
-    color: #475569 !important;
+    color: var(--text-muted) !important;
 }
 
-/* Custom premium color definitions */
-.text-indigo {
-    color: #0284c7 !important;
-}
-.text-purple {
-    color: #0369a1 !important;
-}
-.text-pink {
-    color: #0ea5e9 !important;
-}
-.bg-indigo {
-    background-color: #0284c7 !important;
+.text-accent {
+    color: var(--accent-shu) !important;
 }
 
-/* Tab Button styles */
-.btn-indigo {
-    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
-    color: white !important;
-    border: none;
-    font-weight: 500;
+a {
+    color: var(--text-sumi);
+    text-decoration: none;
+    transition: color 0.4s ease;
 }
 
-.btn-dark-outline {
-    background: rgba(0, 0, 0, 0.05);
-    color: #334155 !important;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    font-weight: 500;
-    transition: all 0.2s ease;
+a:hover {
+    color: var(--accent-shu);
 }
 
-.btn-dark-outline:hover {
-    color: #0f172a !important;
-    background: rgba(0, 0, 0, 0.1);
+/* Hanko (Seal) Accent */
+.hanko-seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: var(--accent-shu);
+    color: var(--bg-washi);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-family: var(--font-serif);
+    margin-right: 8px;
+    /* Optional: make it look stamped */
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
 }
 
-/* Glassmorphic cards */
-.card-custom {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(14, 165, 233, 0.2);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-.card-custom:hover {
-    border-color: rgba(14, 165, 233, 0.4);
-    box-shadow: 0 15px 35px rgba(14, 165, 233, 0.15);
-}
-
-/* Premium Form Elements */
-.form-label {
-    color: #334155 !important;
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-}
-
-.form-control-custom {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(14, 165, 233, 0.3) !important;
-    border-radius: 12px !important;
-    color: #0f172a !important;
-    padding: 12px 16px !important;
-    transition: all 0.2s ease;
-}
-
-.form-control-custom:focus {
-    background: #ffffff !important;
-    border-color: #0284c7 !important;
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3) !important;
-    color: #0f172a !important;
-}
-
-select.form-control-custom option {
-    background-color: #ffffff;
-    color: #0f172a;
-}
-
-/* File Upload drag/drop styling */
-.file-upload-wrapper {
+/* Minimalist Button */
+.btn-zen {
+    background: transparent;
+    border: 1px solid var(--text-sumi);
+    color: var(--text-sumi);
+    padding: 12px 32px;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
-    border: 2px dashed rgba(14, 165, 233, 0.4);
-    border-radius: 16px;
+    overflow: hidden;
     cursor: pointer;
-    background: rgba(14, 165, 233, 0.04);
-    transition: all 0.2s ease;
+    border-radius: 0;
 }
 
-.file-upload-wrapper:hover {
-    border-color: #0284c7;
-    background: rgba(14, 165, 233, 0.08);
-}
-
-.file-upload-input {
+.btn-zen::after {
+    content: '';
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
+    height: 0%;
+    background-color: var(--text-sumi);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+}
+
+.btn-zen:hover {
+    color: var(--bg-washi) !important;
+}
+
+.btn-zen:hover::after {
     height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 10;
 }
 
-.file-upload-design {
-    pointer-events: none;
+.btn-zen.danger {
+    border-color: var(--accent-shu);
+    color: var(--accent-shu);
+}
+.btn-zen.danger::after {
+    background-color: var(--accent-shu);
 }
 
-/* Tier Card style */
-.tier-info-card {
-    background: rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.font-size-08 {
-    font-size: 0.8rem;
-}
-
-/* Premium Buttons */
-.btn-primary-custom {
-    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+/* Minimalist Input */
+.input-zen {
+    background: transparent;
     border: none;
-    border-radius: 12px;
-    color: white !important;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.btn-primary-custom:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
-    color: white !important;
-}
-
-.btn-primary-custom:active {
-    transform: translateY(0);
-}
-
-/* Custom Table styling */
-.table-custom {
+    border-bottom: 1px solid var(--border-light);
+    border-radius: 0;
+    padding: 12px 0;
+    color: var(--text-sumi);
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    transition: border-color 0.4s ease;
     width: 100%;
-    margin-bottom: 0;
-    color: #0f172a !important;
-    border-color: rgba(0, 0, 0, 0.08);
+}
+.input-zen:focus {
+    outline: none;
+    border-bottom-color: var(--text-sumi);
+    box-shadow: none;
+}
+.input-zen::placeholder {
+    color: var(--text-muted);
+    font-weight: 300;
 }
 
-.table-custom th {
+/* Overlay Menu */
+.zen-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--bg-washi);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    /* GSAP will handle the transition, but just in case */
+}
+
+.zen-overlay.active {
+    pointer-events: auto;
+}
+
+.zen-menu-item {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    color: var(--text-sumi);
+    text-decoration: none;
+    margin: 20px 0;
+    position: relative;
+    opacity: 0; /* For GSAP */
+    transform: translateY(20px);
+}
+
+.zen-menu-item:hover {
+    color: var(--accent-shu);
+}
+
+/* Minimalist Tables */
+.table-zen {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table-zen th {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    text-align: left;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--text-sumi);
+    color: var(--text-sumi);
+}
+.table-zen td {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-sumi);
+    font-weight: 300;
+}
+.table-zen tr {
+    transition: background-color 0.4s ease;
+}
+.table-zen tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+/* Form controls overrides */
+.form-control, .form-select {
     background: transparent !important;
-    border-bottom: 2px solid rgba(14, 165, 233, 0.2) !important;
-    color: #0f172a !important;
-    font-weight: 600 !important;
-    font-size: 0.9rem;
-    padding: 16px 12px !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 0 !important;
+    color: var(--text-sumi) !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    transition: border-color 0.4s ease;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--text-sumi) !important;
 }
 
-.table-custom td {
-    background: transparent !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-    color: #334155 !important;
-    padding: 16px 12px !important;
-    vertical-align: middle !important;
-}
-
-.table-custom tr:hover td {
-    background: rgba(14, 165, 233, 0.05) !important;
-}
-
-/* Status Badges */
+/* Status Badges Zen */
 .status-badge {
     font-size: 0.8rem;
-    font-weight: 600;
-    padding: 6px 14px;
-    border-radius: 12px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    padding: 4px 0;
     display: inline-flex;
     align-items: center;
 }
+.status-badge::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+.status-pending { color: var(--text-muted); }
+.status-pending::before { background-color: var(--text-muted); }
+.status-processed { color: var(--text-sumi); }
+.status-processed::before { background-color: var(--text-sumi); }
 
-.status-pending {
-    background: rgba(234, 179, 8, 0.2);
-    color: #ca8a04;
-    border: 1px solid rgba(234, 179, 8, 0.4);
+/* GSAP Defaults */
+.gsap-fade-up {
+    opacity: 0;
+    transform: translateY(30px);
 }
 
-.status-processed {
-    background: rgba(34, 197, 94, 0.2);
-    color: #16a34a;
-    border: 1px solid rgba(34, 197, 94, 0.4);
+/* Hide scrollbar for a cleaner look */
+::-webkit-scrollbar {
+    width: 4px;
 }
-
-/* Action button */
-.btn-action-view {
-    background: rgba(14, 165, 233, 0.1);
-    border: 1px solid rgba(14, 165, 233, 0.2);
-    color: #0284c7;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    text-decoration: none;
+::-webkit-scrollbar-track {
+    background: transparent;
 }
-
-.btn-action-view:hover {
-    background: rgba(14, 165, 233, 0.2);
-    border-color: rgba(14, 165, 233, 0.4);
-    color: #0369a1;
+::-webkit-scrollbar-thumb {
+    background: var(--border-light);
 }
-
-.btn-action-delete {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    color: #dc2626;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.btn-action-delete:hover {
-    background: #ef4444;
-    border-color: #ef4444;
-    color: white !important;
-}
-
-/* Animations */
-.animate-fade-in {
-    animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.min-vh-75 {
-    min-height: 70vh;
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
 }
