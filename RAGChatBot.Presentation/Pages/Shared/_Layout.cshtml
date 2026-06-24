@@ -44,13 +44,20 @@
                     ?? User.Identity?.Name
                     ?? "Người dùng")
                 : string.Empty;
+                
+            var userRole = User.Identity?.IsAuthenticated == true 
+                ? (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "User")
+                : string.Empty;
         }
         <div class="zen-nav-actions">
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <div class="zen-user-badge">
+                <div class="zen-user-badge" style="gap: 12px;">
                     <span class="zen-user-avatar">@(displayName.Length > 0 ? displayName[0].ToString().ToUpper() : "?")</span>
-                    <span class="zen-user-name">@displayName</span>
+                    <div class="d-flex flex-column justify-content-center">
+                        <span class="zen-user-name" style="line-height: 1.2;">@displayName</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">@userRole</span>
+                    </div>
                 </div>
                 <form action="/Account/Logout" method="post" style="display: inline;">
                     @Html.AntiForgeryToken()
