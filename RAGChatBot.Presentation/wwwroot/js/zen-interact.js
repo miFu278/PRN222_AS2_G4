@@ -1,8 +1,48 @@
 window.zenInteract = {
+    initLenis: function () {
+        if (typeof Lenis === 'undefined' || typeof gsap === 'undefined') return;
+
+        // Tự động tắt Lenis nếu người dùng bật chế độ giảm hoạt ảnh (Accessibility)
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.documentElement.style.scrollBehavior = 'auto';
+            return;
+        }
+
+        if (window.lenis) {
+            window.lenis.destroy();
+        }
+
+        window.lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        window.lenis.on('scroll', ScrollTrigger.update);
+
+        gsap.ticker.add((time) => {
+            window.lenis.raf(time * 1000);
+        });
+
+        gsap.ticker.lagSmoothing(0);
+    },
+
     initPageReveal: function () {
         if (typeof gsap === 'undefined') return;
 
-        // Reset elements before animating to ensure they run on SPA nav
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (prefersReducedMotion) {
+            gsap.set(".gsap-fade-up, .zen-list-item", { y: 0, opacity: 1 });
+            return;
+        }
+
         gsap.set(".gsap-fade-up", { y: 30, opacity: 0 });
         gsap.to(".gsap-fade-up", { 
             y: 0, 
@@ -12,7 +52,6 @@ window.zenInteract = {
             ease: "power3.out" 
         });
 
-        // Stagger list items if present
         gsap.set(".zen-list-item", { y: 20, opacity: 0 });
         gsap.to(".zen-list-item", {
             y: 0,
@@ -26,6 +65,8 @@ window.zenInteract = {
 
     initMagneticButtons: function () {
         if (typeof gsap === 'undefined') return;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
         const magnets = document.querySelectorAll('.magnetic-btn');
         magnets.forEach(magnet => {
@@ -67,23 +108,31 @@ window.zenInteract = {
         
         container.appendChild(toast);
 
-        // Animate in
-        gsap.fromTo(toast, 
-            { y: 50, opacity: 0 }, 
-            { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }
-        );
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReducedMotion) {
+            toast.style.opacity = 1;
+            toast.style.transform = 'none';
+        } else {
+            gsap.fromTo(toast, 
+                { y: 50, opacity: 0 }, 
+                { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }
+            );
+        }
 
-        // Animate out after 3 seconds
         setTimeout(() => {
-            gsap.to(toast, {
-                y: -20,
-                opacity: 0,
-                duration: 0.6,
-                ease: "power2.in",
-                onComplete: () => {
-                    toast.remove();
-                }
-            });
+            if (prefersReducedMotion) {
+                toast.remove();
+            } else {
+                gsap.to(toast, {
+                    y: -20,
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        toast.remove();
+                    }
+                });
+            }
         }, 3000);
     },
 

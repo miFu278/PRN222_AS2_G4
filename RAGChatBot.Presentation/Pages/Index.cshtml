@@ -4,14 +4,56 @@
     ViewData["Title"] = "Trang chủ";
 }
 
-<div class="zen-container py-5 gsap-fade-up text-center">
-    <div class="zen-hero mb-5">
-        <div class="zen-hero-title">
-            <h1 class="font-serif m-0" style="font-size: 3rem;">RAG ChatBot</h1>
+<div class="zen-chat-container">
+    <!-- Zen Hero Section (Bố cục 2 cột thanh lịch) -->
+    <div class="zen-hero">
+        <div class="zen-hero-title gsap-fade-up">
+            <span class="text-accent">悟 TRÍ TUỆ NHÂN TẠO TĨNH LẶNG</span>
+            <h1>Khám Phá Tri Thức Qua Góc Nhìn <i>Nhân Loại</i>.</h1>
         </div>
-        <div class="zen-hero-desc">
-            <p class="text-muted m-0 mt-3">Khám phá sức mạnh của AI trong giáo dục.</p>
+        <div class="zen-hero-desc gsap-fade-up">
+            Hệ thống trợ lý học tập thông minh ứng dụng kiến trúc RAG. Giảng viên chia sẻ tài liệu, AI tự động thấu hiểu và cùng sinh viên giải đáp mọi thắc mắc trong không gian trong trẻo, thanh lịch.
         </div>
     </div>
-    <a href="/Courses" class="btn-zen magnetic-btn mt-4">Bắt đầu học</a>
+
+    <!-- Khu vực nhập liệu Chat (Unboxed UI) -->
+    <div class="zen-input-area gsap-fade-up">
+        <div class="zen-input-wrapper">
+            <div class="flex-grow-1">
+                <input type="text" class="input-zen" placeholder="Hãy đặt câu hỏi về nội dung bài giảng hoặc tài liệu môn học..." id="chatInputField" />
+            </div>
+            <button class="zen-send-btn magnetic-btn" id="sendChatBtn" title="Gửi tin nhắn">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Gợi ý câu hỏi (Unboxed UI) -->
+    <div class="zen-suggestions gsap-fade-up">
+        <div style="padding: 20px 0; border-bottom: 1px solid var(--border-light); cursor: pointer;" class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="small text-muted d-block mb-1" style="letter-spacing: 0.1em;">GỢI Ý CÂU HỎI</span>
+                <span class="text-sumi" style="font-size: 1.15rem; font-weight: 500;">Phân tích kiến trúc hệ thống RAG trong bài giảng</span>
+            </div>
+            <i class="fa-solid fa-arrow-right text-sumi"></i>
+        </div>
+
+        <div style="padding: 20px 0; border-bottom: 1px solid var(--border-light); cursor: pointer;" class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="small text-muted d-block mb-1" style="letter-spacing: 0.1em;">GỢI Ý CÂU HỎI</span>
+                <span class="text-sumi" style="font-size: 1.15rem; font-weight: 500;">Các phương pháp tối ưu hóa Vector Database</span>
+            </div>
+            <i class="fa-solid fa-arrow-right text-sumi"></i>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (window.zenInteract) {
+                window.zenInteract.initMagneticButtons();
+            }
+        });
+    </script>
+}

@@ -3,7 +3,7 @@
 :root {
     --bg-washi: #fcfbf9;
     --text-sumi: #2c2c2c;
-    --text-muted: #8e8e8e;
+    --text-muted: #737373; /* Tối ưu hóa contrast ratio > 4.5:1 */
     --accent-shu: #bf2a23;
     --border-light: #eaeaea;
     --font-serif: 'Noto Serif JP', serif;
@@ -31,6 +31,13 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .font-serif {
     font-weight: 500;
     letter-spacing: 0.05em;
     line-height: 1.4;
+}
+
+/* Bảo vệ chân chữ cho tiêu đề in nghiêng (Descender Clearance) */
+h1 i, h2 i, h3 i, h4 i, h5 i, h6 i, .font-serif i,
+h1 em, h2 em, h3 em, h4 em, h5 em, h6 em, .font-serif em {
+    padding-bottom: 0.25rem;
+    display: inline-block;
 }
 
 p, .lead, li {
@@ -62,12 +69,12 @@ a:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background-color: var(--accent-shu);
     color: var(--bg-washi);
     border-radius: 50%;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-family: var(--font-serif);
     margin-right: 8px;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
@@ -77,8 +84,8 @@ a:hover {
 .btn-zen {
     background: transparent;
     border: 1px solid var(--text-sumi);
-    color: var(--text-sumi);
-    padding: 12px 32px;
+    color: var(--text-sumi) !important;
+    padding: 10px 28px;
     font-family: var(--font-sans);
     font-weight: 400;
     letter-spacing: 0.1em;
@@ -88,6 +95,8 @@ a:hover {
     overflow: hidden;
     cursor: pointer;
     border-radius: 0;
+    display: inline-block;
+    white-space: nowrap; /* Kỷ luật cấm wrap CTA */
 }
 
 .btn-zen::after {
@@ -112,10 +121,19 @@ a:hover {
 
 .btn-zen.danger {
     border-color: var(--accent-shu);
-    color: var(--accent-shu);
+    color: var(--accent-shu) !important;
 }
 .btn-zen.danger::after {
     background-color: var(--accent-shu);
+}
+
+/* Zen Shoji Glass (Hiệu ứng kính mờ Shoji & Unboxed UI) */
+.zen-shoji-glass {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background-color: rgba(252, 251, 249, 0.75);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 12px 30px rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid var(--border-light);
 }
 
 /* Minimalist Input */
@@ -141,48 +159,43 @@ a:hover {
     font-weight: 300;
 }
 
-/* Overlay Menu */
-.zen-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: var(--bg-washi);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
-    visibility: hidden;
-}
-
-.zen-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-    visibility: visible;
-}
-
-
-.zen-menu-item {
-    font-family: var(--font-serif);
-    font-size: 3rem;
+.zen-menu-item-sm {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
     color: var(--text-sumi);
     text-decoration: none;
-    margin: 20px 0;
-    position: relative;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: color 0.4s ease, transform 0.6s ease, opacity 0.6s ease;
+    transition: color 0.3s ease;
+    white-space: nowrap;
 }
-
-.zen-overlay.active .zen-menu-item {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.zen-menu-item:hover {
+.zen-menu-item-sm:hover {
     color: var(--accent-shu);
+}
+
+/* Sleek Horizontal Scroll Menu */
+.zen-scroll-menu {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    padding: 4px 0;
+    max-width: 55vw; /* Giới hạn chiều rộng để cuộn mượt mà không đẩy nút Login/Logout */
+}
+
+.zen-scroll-menu::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+.zen-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-shrink: 0;
 }
 
 /* Minimalist Tables */
@@ -223,6 +236,7 @@ a:hover {
 }
 .form-control:focus, .form-select:focus {
     border-color: var(--text-sumi) !important;
+    box-shadow: none !important;
 }
 
 /* Status Badges Zen */
@@ -267,71 +281,26 @@ a:hover {
     background: var(--text-muted);
 }
 
-/* Blazor Specifics */
-#blazor-error-ui {
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-}
-
-#blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-}
-
 /* Layout and Spacing */
 .zen-header {
-    padding: 40px 60px;
+    padding: 20px 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 100;
+    z-index: 1000;
+    gap: 2rem;
 }
 
 .zen-brand {
     font-family: var(--font-serif);
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 500;
     color: var(--text-sumi);
     text-decoration: none;
     display: flex;
     align-items: center;
     letter-spacing: 0.05em;
-}
-
-.zen-menu-trigger {
-    background: transparent;
-    border: none;
-    font-family: var(--font-sans);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--text-sumi);
-    cursor: pointer;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.zen-menu-trigger::before {
-    content: '';
-    width: 30px;
-    height: 1px;
-    background-color: var(--text-sumi);
-    transition: width 0.3s ease;
-}
-
-.zen-menu-trigger:hover::before {
-    width: 50px;
+    flex-shrink: 0;
 }
 
 .zen-main {
@@ -342,20 +311,6 @@ a:hover {
     width: 100%;
 }
 
-.overlay-close {
-    position: absolute;
-    top: 40px;
-    right: 60px;
-    background: transparent;
-    border: none;
-    font-size: 2rem;
-    color: var(--text-sumi);
-    cursor: pointer;
-    font-family: var(--font-sans);
-    font-weight: 300;
-}
-
-/* Zen Container */
 .zen-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -377,6 +332,8 @@ a:hover {
     align-items: flex-start;
     margin-bottom: 40px;
     gap: 30px;
+    min-height: 85vh; /* Khóa chiều cao Hero ổn định */
+    padding-top: 4rem;
 }
 
 .zen-hero-title {
@@ -385,11 +342,12 @@ a:hover {
     position: relative;
 }
 
-.zen-hero-title h2 {
-    font-size: 2.5rem;
+.zen-hero-title h1 {
+    font-size: 3.5rem;
     font-weight: 300;
     line-height: 1.2;
     letter-spacing: -0.01em;
+    margin-bottom: 1.5rem;
 }
 
 .zen-hero-title .text-accent {
@@ -397,15 +355,16 @@ a:hover {
     font-family: var(--font-sans);
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     font-weight: 500;
+    display: inline-block;
 }
 
 .zen-hero-desc {
     flex: 1;
     min-width: 300px;
     padding-top: 15px;
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     color: var(--text-muted) !important;
     position: relative;
 }
@@ -415,7 +374,7 @@ a:hover {
     position: absolute;
     top: 0;
     left: 0;
-    width: 40px;
+    width: 60px;
     height: 1px;
     background-color: var(--text-sumi);
 }
@@ -423,6 +382,8 @@ a:hover {
 .zen-input-area {
     position: relative;
     margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 16px;
 }
 
 .zen-input-wrapper {
@@ -435,7 +396,7 @@ a:hover {
     background: transparent;
     border: none;
     color: var(--text-sumi);
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     cursor: pointer;
     padding-bottom: 12px;
     opacity: 0.6;
@@ -460,24 +421,24 @@ a:hover {
 /* Responsive Overrides */
 @media (max-width: 768px) {
     .zen-header {
-        padding: 20px;
+        padding: 15px 25px;
+        gap: 1rem;
+    }
+    .zen-scroll-menu {
+        max-width: 45vw;
+        gap: 1.5rem;
     }
     .zen-main {
-        padding: 0 20px 20px 20px;
-    }
-    .overlay-close {
-        top: 20px;
-        right: 20px;
-    }
-    .zen-menu-item {
-        font-size: 2rem;
+        padding: 0 25px 25px 25px;
     }
     .zen-hero {
         margin-bottom: 20px;
-        gap: 15px;
+        gap: 20px;
+        min-height: auto;
+        padding-top: 2rem;
     }
-    .zen-hero-title h2 {
-        font-size: 2rem;
+    .zen-hero-title h1 {
+        font-size: 2.5rem;
     }
 }
 
@@ -498,47 +459,18 @@ a:hover {
     background-color: var(--text-sumi);
     color: var(--bg-washi);
     font-family: var(--font-sans);
-    font-size: 0.9rem;
-    padding: 12px 24px;
+    font-size: 0.95rem;
+    padding: 14px 28px;
     border-radius: 40px;
     display: flex;
     align-items: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
 
 .zen-toast-success {
-    /* Subtle green tint but still mostly dark */
     border-bottom: 2px solid #28a745;
 }
 
 .zen-toast-error {
     border-bottom: 2px solid var(--accent-shu);
 }
-
-/* Magnetic Button Utility */
-.magnetic-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    will-change: transform;
-}
-
-/* Zen Inline Form Overrides */
-.form-inline-zen {
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid var(--border-light) !important;
-    border-radius: 0 !important;
-    padding: 8px 0 !important;
-    box-shadow: none !important;
-    transition: border-color 0.4s ease;
-}
-.form-inline-zen:focus {
-    border-bottom-color: var(--text-sumi) !important;
-    outline: none !important;
-}
-
-/* Clean up Blazor's default valid/invalid border colors */
-.modified.valid { outline: none !important; border-bottom-color: var(--border-light) !important; }
-.modified.invalid { outline: none !important; border-bottom-color: var(--accent-shu) !important; }
